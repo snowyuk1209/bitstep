@@ -263,7 +263,51 @@ pre.code{background:var(--sunk);border:2px solid var(--line);border-radius:12px;
 .card .cnt{position:absolute;top:4px;right:6px;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
 .card.r4.own{box-shadow:0 0 16px var(--led-glow)}
 .reveal{position:fixed;inset:0;z-index:40;background:rgba(10,14,24,.72);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));animation:fade .2s}
-.capsule{width:130px;height:130px;border-radius:50%;background:linear-gradient(var(--rc) 50%,#F3F6FA 50%);border:5px solid #18202E;animation:shake .9s ease-in-out}
+.capsule{width:130px;height:130px;border-radius:50%;background:linear-gradient(var(--cap,#F3F6FA) 50%,#F3F6FA 50%);border:5px solid #18202E;position:relative;z-index:2;transition:background .2s}
+.capsule::after{content:"";position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:#F3F6FA;border:5px solid #18202E}
+.capsule.rolling{animation:shake 1.1s ease-in-out}
+.capsule.pulse{animation:cappulse .5s ease-out}
+@keyframes cappulse{0%{transform:scale(1)}35%{transform:scale(1.28)}100%{transform:scale(1)}}
+.capsule.rainbow{background:conic-gradient(#FF4D4D,#FFB020,#FFE14D,#34C79F,#2F80ED,#8E6CF0,#F25FB0,#FF4D4D);box-shadow:0 0 40px 10px rgba(255,220,120,.6),0 0 90px 30px rgba(140,108,240,.45);animation:cappulse .5s ease-out,huespin 1.2s linear infinite}
+@keyframes huespin{to{filter:hue-rotate(360deg)}}
+.capsule.open{animation:capopen .32s ease-in forwards}
+@keyframes capopen{to{transform:scale(1.8);opacity:0}}
+.reveal.stage{transition:background .4s;overflow:hidden}
+.reveal.dark{background:#000}
+.reveal.shake{animation:scrshake .5s linear 2}
+@keyframes scrshake{0%,100%{transform:translate(0)}20%{transform:translate(-8px,4px)}40%{transform:translate(7px,-6px)}60%{transform:translate(-6px,-3px)}80%{transform:translate(5px,6px)}}
+.reveal .hint{color:#fff;font-weight:800;margin:0;position:relative;z-index:2}
+.reveal .skip{color:rgba(255,255,255,.55);font-size:12px;margin:0;position:absolute;bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+.flash{position:absolute;inset:0;pointer-events:none;opacity:0;z-index:1}
+.flash.blue{background:radial-gradient(circle,rgba(47,128,237,.85),transparent 70%);animation:flash .6s ease-out}
+.flash.red{background:radial-gradient(circle,rgba(229,72,77,.9),transparent 70%);animation:flash .35s ease-out 3}
+.flash.lightning{background:#fff;animation:flash .12s steps(1) 4}
+.flash.rainbow{background:conic-gradient(from 0deg,rgba(255,77,77,.6),rgba(255,176,32,.6),rgba(255,225,77,.6),rgba(52,199,159,.6),rgba(47,128,237,.6),rgba(142,108,240,.6),rgba(242,95,176,.6),rgba(255,77,77,.6));animation:flash 1.1s ease-out}
+@keyframes flash{0%{opacity:1}100%{opacity:0}}
+.callout{position:relative;z-index:3;min-height:64px;font-family:var(--f-display);font-size:46px;line-height:1.2;color:#fff;opacity:0;text-align:center;-webkit-text-stroke:2px #18202E;paint-order:stroke fill}
+.callout.show{animation:callin .45s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes callin{0%{opacity:0;transform:scale(3) rotate(-8deg)}12%{opacity:1}100%{opacity:1;transform:scale(1) rotate(-4deg)}}
+.callout.c1{color:#C9D3E0;font-size:36px}
+.callout.c2{color:#5FA8FF;text-shadow:0 0 18px rgba(47,128,237,.9)}
+.callout.c3{color:#FF5A5F;font-size:54px;text-shadow:0 0 22px rgba(255,60,60,.95)}
+.callout.c4{font-size:58px;background:linear-gradient(90deg,#FF4D4D,#FFB020,#FFE14D,#34C79F,#2F80ED,#8E6CF0,#F25FB0);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:2px #fff;filter:drop-shadow(0 0 14px rgba(255,255,255,.8))}
+.reveal.result .bigcard,.reveal.result .row,.reveal.result .banner{position:relative;z-index:3}
+.rays{position:absolute;left:50%;top:42%;width:170vmax;height:170vmax;margin:-85vmax 0 0 -85vmax;pointer-events:none;z-index:1;opacity:.32;animation:spin 14s linear infinite;background:repeating-conic-gradient(var(--rc) 0 9deg,transparent 9deg 18deg)}
+.rays.r3{opacity:.42;animation-duration:9s}
+.rays.r4{opacity:.6;animation-duration:6s;background:repeating-conic-gradient(#FF4D4D 0 6deg,transparent 6deg 12deg,#FFB020 12deg 18deg,transparent 18deg 24deg,#34C79F 24deg 30deg,transparent 30deg 36deg,#2F80ED 36deg 42deg,transparent 42deg 48deg,#8E6CF0 48deg 54deg,transparent 54deg 60deg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.banner{font-family:var(--f-display);font-size:40px;letter-spacing:.12em;color:#FFE14D;-webkit-text-stroke:2px #5a3a00;paint-order:stroke fill;text-shadow:0 0 24px rgba(255,200,60,.9);animation:callin .5s cubic-bezier(.2,1.6,.4,1)}
+.reveal.rr4 .bigcard{border-image:linear-gradient(135deg,#FF4D4D,#FFB020,#FFE14D,#34C79F,#2F80ED,#8E6CF0) 1;border-radius:0}
+.bigcard.promo{position:relative;z-index:3;padding:18px 24px}
+.promo-art svg{width:110px;height:110px}
+.bigcard.promo h3{margin:2px 0 0}
+.bigcard.jolt{animation:jolt .5s linear}
+@keyframes jolt{0%,100%{transform:none}15%{transform:rotate(-6deg) scale(1.04)}30%{transform:rotate(5deg)}45%{transform:rotate(-4deg)}60%{transform:rotate(3deg)}}
+.bigcard.lvup{animation:lvup .55s cubic-bezier(.2,1.6,.4,1)}
+@keyframes lvup{0%{transform:scale(1)}30%{transform:scale(1.18);box-shadow:0 0 50px var(--rc)}100%{transform:scale(1);box-shadow:0 0 22px var(--rc)}}
+.confetti{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.confetti i{position:absolute;top:-20px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translate(var(--dx),110vh) rotate(var(--rot))}}
 @keyframes shake{0%,100%{transform:rotate(0)}15%{transform:rotate(-14deg)}30%{transform:rotate(12deg)}45%{transform:rotate(-10deg)}60%{transform:rotate(8deg)}75%{transform:scale(1.12)}}
 .bigcard{background:var(--surface);border-radius:20px;border:4px solid var(--rc);padding:22px 24px;width:min(300px,100%);box-sizing:border-box;text-align:center;animation:pop .45s cubic-bezier(.2,1.4,.4,1)}
 .bigcard.r4{box-shadow:0 0 40px var(--led-glow)}
@@ -1200,7 +1244,7 @@ function renderGacha() {
     : S.freeDay === todayStr() ? '今日の無料ガチャは引きました。また明日！'
     : `今日の目標（${S.goal} XP）を達成すると、無料で1回引けます。あと ${S.goal - todayXp()} XP`;
   app.innerHTML = `<div class="wrap">
-    <div class="gtop"><button class="iconbtn" id="back" aria-label="ホームへ">${I.x}</button><h1>ガチャ</h1><span class="wallet coin" aria-label="コイン">${I.coin}<span style="color:var(--ink)">${S.coins}</span></span></div>
+    <div class="gtop"><button class="iconbtn" id="back" aria-label="ホームへ">${I.x}</button><h1>ガチャ</h1><button class="iconbtn" id="gsnd" aria-label="効果音 ${S.sound ? 'オン' : 'オフ'}">${S.sound ? I.sound : I.mute}</button><span class="wallet coin" aria-label="コイン">${I.coin}<span style="color:var(--ink)">${S.coins}</span></span></div>
     <div class="machine">
       <div class="window" aria-hidden="true">${caps}</div>
       ${free ? `<button class="btn okb" id="pullFree">無料で引く</button>` : ''}
@@ -1225,6 +1269,7 @@ function renderGacha() {
     <div style="height:60px"></div>
   </div>`;
   $('#back').onclick = renderHome;
+  $('#gsnd').onclick = () => { S.sound = !S.sound; save(); renderGacha(); };
   $('#pull').onclick = () => pull(false);
   if ($('#pullFree')) $('#pullFree').onclick = () => pull(true);
   app.querySelectorAll('.card').forEach(b => b.onclick = () => openCard(b.dataset.card));
@@ -1241,26 +1286,152 @@ function pull(free) {
   const n = Object.keys(S.cards).length;
   if (n >= 10) award('col10');
   if (n >= CARDS.length) award('colall');
+  playReveal(c, isNew);
+}
+
+/* ---------- pull presentation: escalating "chance" stages by rarity ---------- */
+const CAP_COLORS = { 1: '#F3F6FA', 2: '#2F80ED', 3: '#E5484D', 4: 'rainbow' };
+const CALLOUT = { 2: 'チャンス！', 3: '激アツ！！', 4: '確定！！！' };
+
+function sfx(name) {
+  if (!S.sound) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = ac.currentTime;
+    const tone = (f, at, dur, type = 'triangle', vol = 0.12, f2) => {
+      const o = ac.createOscillator(), g = ac.createGain(), t = t0 + at;
+      o.type = type; o.frequency.setValueAtTime(f, t);
+      if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(ac.destination); o.start(t); o.stop(t + dur + 0.05);
+    };
+    const chord = (fs, at, dur, type, vol) => fs.forEach(f => tone(f, at, dur, type, vol));
+    switch (name) {
+      case 'roll': for (let i = 0; i < 10; i++) tone(900 + i * 60, 0.95 * (1 - Math.pow(0.86, i)) / (1 - 0.86) * 0.13, 0.035, 'square', 0.05); break;
+      case 'step2': [523, 659, 784, 1046].forEach((f, i) => tone(f, i * 0.06, 0.16, 'square', 0.07)); break;
+      case 'step3': tone(380, 0, 0.45, 'sawtooth', 0.07, 1400); tone(380, 0.45, 0.45, 'sawtooth', 0.07, 1400); chord([523, 659, 784], 0.9, 0.35, 'square', 0.05); break;
+      case 'black': tone(55, 0, 0.9, 'sine', 0.35, 35); tone(110, 0, 0.6, 'triangle', 0.12, 60); break;
+      case 'step4': tone(200, 0, 0.7, 'sawtooth', 0.08, 2400); for (let i = 0; i < 8; i++) tone(1568 + i * 220, 0.5 + i * 0.05, 0.12, 'triangle', 0.05); break;
+      case 'fake': tone(500, 0, 0.18, 'square', 0.06); tone(330, 0.2, 0.35, 'square', 0.06, 220); break;
+      case 'open': tone(1200, 0, 0.08, 'square', 0.05, 300); break;
+      case 'stop': tone(1500, 0, 0.14, 'square', 0.08, 180); tone(90, 0.02, 0.3, 'sine', 0.3, 50); break;
+      case 'up2': [784, 988, 1175, 1568].forEach((f, i) => tone(f, i * 0.05, 0.14, 'square', 0.07)); tone(1568, 0.22, 0.35, 'triangle', 0.08); break;
+      case 'up3': tone(500, 0, 0.35, 'sawtooth', 0.07, 1800); [1046, 1318, 1568, 2093].forEach((f, i) => tone(f, 0.32 + i * 0.05, 0.16, 'square', 0.07)); tone(2093, 0.55, 0.45, 'triangle', 0.08); break;
+      case 'reveal1': tone(880, 0, 0.25); tone(1320, 0.08, 0.3); break;
+      case 'reveal2': [659, 880, 1175].forEach((f, i) => tone(f, i * 0.08, 0.3, 'triangle', 0.11)); break;
+      case 'reveal3': [523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, i * 0.07, 0.25, 'square', 0.06)); chord([523, 784, 1046, 1318], 0.4, 0.8, 'triangle', 0.07); break;
+      case 'reveal4':
+        [392, 523, 659, 784].forEach((f, i) => tone(f, i * 0.11, 0.18, 'square', 0.07));
+        chord([523, 659, 784, 1046], 0.48, 1.4, 'square', 0.045); chord([262, 392], 0.48, 1.4, 'triangle', 0.08);
+        for (let i = 0; i < 14; i++) tone(2000 + Math.random() * 2000, 0.6 + i * 0.07, 0.08, 'sine', 0.04);
+        break;
+    }
+  } catch (e) {}
+}
+
+function playReveal(c, isNew) {
   const R = RARITY[c.r];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ov = document.createElement('div');
-  ov.className = 'reveal'; ov.style.setProperty('--rc', R.color);
-  ov.innerHTML = `<div class="capsule" aria-hidden="true"></div><p style="color:#fff;font-weight:800;margin:0">なにが出るかな…</p>`;
+  ov.className = 'reveal stage'; ov.style.setProperty('--rc', R.color);
+  ov.innerHTML = `<div class="flash" aria-hidden="true"></div>
+    <div class="callout" aria-live="polite"></div>
+    <div class="capsule rolling" aria-hidden="true" style="--cap:${CAP_COLORS[1]}"></div>
+    <p class="hint">なにが出るかな…</p><p class="skip">タップでスキップ</p>`;
   document.body.appendChild(ov);
-  beep('ok');
-  const delay = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 950;
-  setTimeout(() => {
-    beep(c.r >= 3 ? 'win' : 'ok');
+  let skipped = reduce, done = false;
+  const wait = ms => new Promise(res => { if (skipped) return res(); const t = setTimeout(res, ms); ov._wake = () => { clearTimeout(t); res(); }; });
+  ov.onclick = () => { if (!done) { skipped = true; ov._wake && ov._wake(); } };
+  onKey = e => { if (!done && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) { e.preventDefault(); skipped = true; ov._wake && ov._wake(); } };
+  const cap = () => ov.querySelector('.capsule');
+  const flash = cls => { const f = ov.querySelector('.flash'); f.className = 'flash'; void f.offsetWidth; f.className = 'flash ' + cls; };
+  const call = (txt, cls) => { const el = ov.querySelector('.callout'); el.className = 'callout'; void el.offsetWidth; el.textContent = txt; el.className = 'callout show ' + cls; };
+  const setCap = col => { const k = cap(); if (!k) return; k.classList.toggle('rainbow', col === 'rainbow'); if (col !== 'rainbow') k.style.setProperty('--cap', col); k.classList.remove('pulse'); void k.offsetWidth; k.classList.add('pulse'); };
+
+  (async () => {
+    if (!skipped) { sfx('roll'); await wait(1100); }
+    // a common card sometimes teases a chance and then falls back
+    if (!skipped && c.r === 1 && Math.random() < 0.15) {
+      setCap(CAP_COLORS[2]); flash('blue'); call('チャンス？', 'c2'); sfx('step2'); await wait(800);
+      setCap(CAP_COLORS[1]); call('…', 'c1'); sfx('fake'); await wait(700);
+    }
+    // promotion: looks like a common card at first, then climbs star by star
+    const promote = !skipped && c.r >= 2 && Math.random() < ({ 2: 0.25, 3: 0.35, 4: 0.45 })[c.r];
+    if (promote) {
+      const k = cap(); k && k.classList.add('open'); sfx('open'); await wait(320);
+      k && k.remove();
+      ov.querySelector('.hint').textContent = '';
+      ov.querySelector('.callout').insertAdjacentHTML('afterend', `<div class="bigcard promo" style="--rc:${RARITY[1].color}">
+          <div class="promo-art">${sprite(c, false)}</div><div class="st">${RARITY[1].stars} ${RARITY[1].name}</div><h3>？？？</h3></div>`);
+      sfx('reveal1'); await wait(1000);
+      const card = ov.querySelector('.promo');
+      if (!skipped && card) { card.classList.add('jolt'); call('！？', 'c1'); sfx('stop'); await wait(900); }
+      for (let lv = 2; lv <= c.r && !skipped && card; lv++) {
+        if (lv === 4) {
+          ov.classList.add('dark'); sfx('black'); call('', ''); await wait(900); if (skipped) break;
+          ov.classList.add('shake'); flash('lightning'); setTimeout(() => flash('rainbow'), 480); call(CALLOUT[4], 'c4'); sfx('step4');
+        } else {
+          flash(lv === 3 ? 'red' : 'blue'); call('昇格！', 'c' + lv); sfx('up' + lv);
+        }
+        card.style.setProperty('--rc', RARITY[lv].color);
+        card.querySelector('.st').textContent = `${RARITY[lv].stars} ${RARITY[lv].name}`;
+        card.classList.remove('jolt', 'lvup'); void card.offsetWidth; card.classList.add('lvup');
+        await wait(lv === 4 ? 1300 : 1000);
+        ov.classList.remove('shake');
+      }
+      done = true;
+      return showResult();
+    }
+    for (let step = 2; step <= c.r && !skipped; step++) {
+      if (step === 4) {
+        ov.classList.add('dark'); sfx('black'); ov.querySelector('.hint').textContent = '';
+        call('', ''); await wait(900); if (skipped) break;
+        ov.classList.add('shake'); flash('lightning'); setTimeout(() => flash('rainbow'), 480);
+      }
+      setCap(CAP_COLORS[step]);
+      if (step < 4) flash(step === 3 ? 'red' : 'blue');
+      call(CALLOUT[step], 'c' + step);
+      sfx('step' + step);
+      await wait(step === 4 ? 1300 : step === 3 ? 1200 : 850);
+      ov.classList.remove('shake');
+    }
+    if (!skipped) { const k = cap(); k && k.classList.add('open'); sfx('open'); await wait(320); }
+    done = true;
+    showResult();
+  })();
+
+  function showResult() {
+    sfx('reveal' + c.r);
+    if (c.r >= 3 && !reduce) burstConfetti(ov, c.r === 4 ? 90 : 40, c.r === 4);
     const again = S.coins >= GACHA_COST;
-    ov.innerHTML = `<div class="bigcard r${c.r}" role="dialog" aria-label="${esc(c.name)}">
+    ov.classList.remove('dark', 'shake');
+    ov.classList.add('result', 'rr' + c.r);
+    ov.querySelectorAll('.capsule,.hint,.skip,.callout,.promo').forEach(e => e.remove());
+    ov.insertAdjacentHTML('beforeend', `${c.r >= 2 ? `<div class="rays r${c.r}" aria-hidden="true"></div>` : ''}
+      ${c.r === 4 ? '<div class="banner">LEGEND</div>' : ''}
+      <div class="bigcard r${c.r}" role="dialog" aria-label="${esc(c.name)}">
         <span class="tag ${isNew ? 'new' : 'dup'}">${isNew ? 'NEW!' : `もう持っている（+${REFUND[c.r]}コイン）`}</span><br>
         ${sprite(c, true)}
         <div class="st">${R.stars} ${R.name}</div><h3>${esc(c.name)}</h3><p>${esc(c.fact)}</p></div>
-      <div class="row">${again ? `<button class="btn ghost" id="again">もう1回（${GACHA_COST}）</button>` : ''}<button class="btn" id="close">OK</button></div>`;
+      <div class="row">${again ? `<button class="btn ghost" id="again">もう1回（${GACHA_COST}）</button>` : ''}<button class="btn" id="close">OK</button></div>`);
+    ov.onclick = null;
     const close = () => { ov.remove(); onKey = null; renderGacha(); };
     $('#close').onclick = close; $('#close').focus();
     if ($('#again')) $('#again').onclick = () => { ov.remove(); renderGacha(); pull(false); };
     onKey = e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); close(); } };
-  }, delay);
+  }
+}
+
+function burstConfetti(host, n, rainbow) {
+  const cols = rainbow ? ['#FF4D4D', '#FFB020', '#FFE14D', '#34C79F', '#2F80ED', '#8E6CF0', '#F25FB0'] : ['#8E6CF0', '#B9A6FF', '#FFFFFF', '#FFB020'];
+  const box = document.createElement('div'); box.className = 'confetti'; box.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('i');
+    s.style.cssText = `left:${Math.random() * 100}%;background:${cols[i % cols.length]};animation-delay:${Math.random() * 0.6}s;animation-duration:${1.8 + Math.random() * 1.6}s;--dx:${(Math.random() - 0.5) * 160}px;--rot:${Math.random() * 720}deg;width:${6 + Math.random() * 6}px;height:${8 + Math.random() * 8}px`;
+    box.appendChild(s);
+  }
+  host.appendChild(box);
+  setTimeout(() => box.remove(), 4000);
 }
 
 function openCard(id) {
