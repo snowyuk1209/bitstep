@@ -1,5 +1,5 @@
 // ビットステップ service worker — makes the app open offline after the first visit.
-const VERSION = '18db0a2a3545';
+const VERSION = '35218b3e55d6';
 const SHELL = `bitstep-shell-${VERSION}`;
 const FONTS = 'bitstep-fonts';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
