@@ -243,6 +243,10 @@ pre.code{background:var(--sunk);border:2px solid var(--line);border-radius:12px;
 .window{height:120px;border-radius:14px;background:var(--sunk);border:2px solid var(--line);position:relative;overflow:hidden}
 .window i{position:absolute;width:38px;height:38px;border-radius:50%;background:linear-gradient(var(--cc) 50%,var(--surface) 50%);border:2px solid color-mix(in srgb,var(--cc) 60%,#000)}
 .machine .note{margin:0;color:var(--muted);font-size:13px;text-align:center}
+.pity{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pity > div{background:var(--sunk);border-radius:12px;padding:10px 12px;font-size:12px;color:var(--muted);display:grid;gap:2px}
+.pity b{color:var(--ink);font-size:16px;font-variant-numeric:tabular-nums}
+.pity .meter{margin-top:4px;height:6px}
 .rates{display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center;font-size:12px;color:var(--muted)}
 .rates b{font-weight:800}
 .colhead{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 6px}
@@ -1159,11 +1163,29 @@ function sprite(c, owned) {
 function bitsData(c) {
   return `<div class="bitsdata">${c.px.map(r => `<span>${r}</span><span>0x${parseInt(r, 2).toString(16).toUpperCase().padStart(2, '0')}</span>`).join('')}</div>`;
 }
+// balance: every 10th pull is ★★ or better, every 40th without a legend is a legend,
+// cards you don't own yet are 5x more likely within their rarity, duplicates refund by rarity
+const PITY_RARE = 10, PITY_LEGEND = 40, NEW_WEIGHT = 5;
+const REFUND = { 1: 10, 2: 15, 3: 25, 4: 50 };
+function untilRare() { return PITY_RARE - (S.pityRare || 0); }
+function untilLegend() { return PITY_LEGEND - (S.pityLeg || 0); }
 function rollCard() {
-  let roll = Math.random() * 100, r = 1;
-  for (const k of [4, 3, 2, 1]) { roll -= RARITY[k].rate; if (roll < 0) { r = k; break; } }
+  S.pityRare = (S.pityRare || 0) + 1; S.pityLeg = (S.pityLeg || 0) + 1;
+  let r = 1;
+  if (S.pityLeg >= PITY_LEGEND) r = 4;
+  else {
+    const min = S.pityRare >= PITY_RARE ? 2 : 1;
+    let total = 0; for (let k = min; k <= 4; k++) total += RARITY[k].rate;
+    let roll = Math.random() * total; r = 4;
+    for (let k = min; k <= 4; k++) { roll -= RARITY[k].rate; if (roll < 0) { r = k; break; } }
+  }
+  if (r >= 2) S.pityRare = 0;
+  if (r === 4) S.pityLeg = 0;
   const pool = CARDS.filter(c => c.r === r);
-  return pool[Math.floor(Math.random() * pool.length)];
+  const w = pool.map(c => S.cards[c.id] ? 1 : NEW_WEIGHT);
+  let x = Math.random() * w.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < pool.length; i++) { x -= w[i]; if (x < 0) return pool[i]; }
+  return pool[pool.length - 1];
 }
 
 function renderGacha() {
@@ -1184,7 +1206,12 @@ function renderGacha() {
       ${free ? `<button class="btn okb" id="pullFree">無料で引く</button>` : ''}
       <button class="btn" id="pull" ${S.coins < GACHA_COST ? 'disabled' : ''}>1回引く（${GACHA_COST}コイン）</button>
       <p class="note">${goalNote}</p>
-      <p class="note">コインは 1問正解 +2、レッスンクリア +10、ノーミス +5、その日はじめてのクリア +20 でもらえます。同じカードが出たら +5コイン返ってきます。</p>
+      <div class="pity">
+        <div><span>★★レア以上 確定まで</span><b>あと ${untilRare()} 回</b><div class="meter"><i style="width:${(S.pityRare || 0) / PITY_RARE * 100}%;background:var(--u5)"></i></div></div>
+        <div><span>★★★★レジェンド 確定まで</span><b>あと ${untilLegend()} 回</b><div class="meter"><i style="width:${(S.pityLeg || 0) / PITY_LEGEND * 100}%"></i></div></div>
+      </div>
+      <p class="note">まだ持っていないカードは、同じレア度の中で出やすくなっています。同じカードが出たら、★10・★★15・★★★25・★★★★50 コインが返ってきます。</p>
+      <p class="note">コインは 1問正解 +2、レッスンクリア +10、ノーミス +5、その日はじめてのクリア +20 でもらえます。</p>
       <div class="rates">${[1, 2, 3, 4].map(k => `<span><b style="color:${RARITY[k].color}">${RARITY[k].stars}</b> ${RARITY[k].name} ${RARITY[k].rate}%</span>`).join('')}</div>
     </div>
     <div class="colhead"><h2>コレクション</h2><span>${owned} / ${CARDS.length}</span></div>
@@ -1209,7 +1236,7 @@ function pull(free) {
   const c = rollCard();
   const isNew = !S.cards[c.id];
   S.cards[c.id] = (S.cards[c.id] || 0) + 1;
-  if (!isNew) S.coins += 5;
+  if (!isNew) S.coins += REFUND[c.r];
   save();
   const n = Object.keys(S.cards).length;
   if (n >= 10) award('col10');
@@ -1225,7 +1252,7 @@ function pull(free) {
     beep(c.r >= 3 ? 'win' : 'ok');
     const again = S.coins >= GACHA_COST;
     ov.innerHTML = `<div class="bigcard r${c.r}" role="dialog" aria-label="${esc(c.name)}">
-        <span class="tag ${isNew ? 'new' : 'dup'}">${isNew ? 'NEW!' : 'もう持っている（+5コイン）'}</span><br>
+        <span class="tag ${isNew ? 'new' : 'dup'}">${isNew ? 'NEW!' : `もう持っている（+${REFUND[c.r]}コイン）`}</span><br>
         ${sprite(c, true)}
         <div class="st">${R.stars} ${R.name}</div><h3>${esc(c.name)}</h3><p>${esc(c.fact)}</p></div>
       <div class="row">${again ? `<button class="btn ghost" id="again">もう1回（${GACHA_COST}）</button>` : ''}<button class="btn" id="close">OK</button></div>`;
