@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F3F6FA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1420" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="&#x30D3;&#x30C3;&#x30C8;&#x30B9;&#x30C6;&#x30C3;&#x30D7;">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body><title>ビットステップ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@400;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one narrow column; home = circuit-trace lesson path, lesson = full-screen quiz with a fixed answer bar */
+:root{
+  --bg:#F3F6FA; --surface:#FFFFFF; --sunk:#E8EDF4; --ink:#18202E; --muted:#5B6880; --line:#D8E0EA; --trace:#BAC6D6;
+  --accent:#E05A0A; --accent-deep:#B34500; --on-accent:#FFFFFF;
+  --ok:#0F8F6F; --ok-bg:#DCF4EC; --bad:#D63A3F; --bad-bg:#FCE6E7; --led:#FFB020; --led-glow:rgba(255,176,32,.55);
+  --u1:#E35A0B; --u2:#0B8A8A; --u3:#6050DC; --u4:#D63A5E; --u5:#2573C4; --u6:#A87700; --u7:#198A4E; --u8:#B5357F;
+  --f-display:"Dela Gothic One","M PLUS Rounded 1c",system-ui,sans-serif;
+  --f-body:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Yu Gothic",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1420; --surface:#18202F; --sunk:#111827; --ink:#E7ECF4; --muted:#97A3B8; --line:#2A3549; --trace:#34425B;
+  --accent:#F06A1A; --accent-deep:#B34500; --ok:#34C79F; --ok-bg:#0E3A2F; --bad:#FF6B70; --bad-bg:#43181B; --led:#FFB830; --led-glow:rgba(255,184,48,.45);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1420; --surface:#18202F; --sunk:#111827; --ink:#E7ECF4; --muted:#97A3B8; --line:#2A3549; --trace:#34425B;
+  --accent:#F06A1A; --accent-deep:#B34500; --ok:#34C79F; --ok-bg:#0E3A2F; --bad:#FF6B70; --bad-bg:#43181B; --led:#FFB830; --led-glow:rgba(255,184,48,.45);
+  color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+body{overscroll-behavior-y:none}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--u5);outline-offset:2px}
+.wrap{max-width:600px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+code,.mono{font-family:var(--f-mono)}
+h1,h2,h3{text-wrap:balance;margin:0}
+
+/* ---------- buttons ---------- */
+.btn{border:0;border-radius:12px;padding:13px 20px;font-weight:800;font-size:16px;letter-spacing:.04em;background:var(--accent);color:var(--on-accent);box-shadow:0 4px 0 var(--accent-deep);transition:transform .06s, box-shadow .06s;width:100%}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--accent-deep)}
+.btn:disabled{background:var(--sunk);color:var(--muted);box-shadow:0 4px 0 var(--line);cursor:default}
+.btn.ghost{background:var(--surface);color:var(--ink);box-shadow:0 4px 0 var(--line);border:2px solid var(--line)}
+.btn.okb{background:var(--ok);box-shadow:0 4px 0 color-mix(in srgb,var(--ok) 60%,#000)}
+.btn.badb{background:var(--bad);box-shadow:0 4px 0 color-mix(in srgb,var(--bad) 60%,#000)}
+.iconbtn{background:none;border:0;padding:6px;border-radius:10px;color:var(--muted);display:inline-flex;align-items:center;gap:4px}
+.iconbtn:hover{background:var(--sunk)}
+
+/* ---------- home ---------- */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:2px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-block:10px}
+.brand{font-family:var(--f-display);font-size:20px;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
+.brand small{font-family:var(--f-mono);font-size:11px;color:var(--muted);letter-spacing:.08em}
+.stats{display:flex;gap:4px}
+.stat{display:flex;align-items:center;gap:5px;font-weight:800;padding:6px 8px;border-radius:10px;background:none;border:0;font-variant-numeric:tabular-nums}
+.stat:hover{background:var(--sunk)}
+.stat svg{width:22px;height:22px}
+.stat.off{color:var(--muted)}
+
+.goal{margin-top:16px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.goal h3{font-size:15px}
+.goal p{margin:0;color:var(--muted);font-size:13px}
+.meter{height:10px;border-radius:99px;background:var(--sunk);overflow:hidden;margin-top:6px}
+.meter i{display:block;height:100%;background:var(--led);border-radius:99px;transition:width .5s}
+.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.tool{background:var(--surface);border:2px solid var(--line);border-bottom-width:4px;border-radius:var(--r);padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:800;font-size:13px;position:relative}
+.tool svg{width:28px;height:28px}
+.tool:active{transform:translateY(2px);border-bottom-width:2px}
+.tool .badge{position:absolute;top:6px;right:8px;background:var(--bad);color:#fff;font-size:11px;border-radius:99px;padding:0 6px;font-variant-numeric:tabular-nums}
+
+.unit{margin-top:28px}
+.band{background:var(--uc);color:#fff;border-radius:var(--r);padding:16px 18px;box-shadow:0 4px 0 color-mix(in srgb,var(--uc) 65%,#000);position:relative;overflow:hidden}
+.band::after{content:attr(data-bits);position:absolute;right:12px;bottom:-6px;font-family:var(--f-mono);font-weight:700;font-size:40px;opacity:.16;letter-spacing:.05em}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;margin:0;opacity:.9}
+.band h2{font-family:var(--f-display);font-size:22px;font-weight:400;margin:2px 0}
+.band p{margin:0;font-size:14px;opacity:.95}
+.path{position:relative;margin-top:8px}
+.path svg.trace{position:absolute;left:50%;top:0;margin-left:-150px;overflow:visible;pointer-events:none}
+.node{position:absolute;width:72px;height:68px;border:0;border-radius:20px;background:var(--uc);color:#fff;box-shadow:0 6px 0 color-mix(in srgb,var(--uc) 60%,#000);display:grid;place-items:center;transition:transform .06s}
+.node:active{transform:translateY(4px);box-shadow:0 2px 0 color-mix(in srgb,var(--uc) 60%,#000)}
+.node svg{width:32px;height:32px}
+.node.locked{background:var(--sunk);color:var(--muted);box-shadow:0 6px 0 var(--line)}
+.node.current{outline:4px solid color-mix(in srgb,var(--uc) 35%,transparent);outline-offset:5px;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{50%{outline-offset:9px;outline-color:color-mix(in srgb,var(--uc) 10%,transparent)}}
+.node .pins{position:absolute;inset:auto 10px -11px;display:flex;justify-content:space-between;pointer-events:none}
+.nlabel{position:absolute;top:12px;width:128px;font-size:13px;font-weight:700;line-height:1.35;color:var(--ink);pointer-events:none}
+.nlabel small{display:block;white-space:nowrap;font-family:var(--f-mono);font-size:10.5px;color:var(--muted);font-weight:500;letter-spacing:.06em}
+.nlabel.r{left:88px}.nlabel.l{right:88px;text-align:right}
+.node.locked + .nlabel{color:var(--muted)}
+.bubble{position:absolute;top:-34px;left:50%;transform:translateX(-50%);background:var(--surface);color:var(--uc);border:2px solid var(--line);font-weight:800;font-size:13px;padding:2px 10px;border-radius:10px;white-space:nowrap;animation:bob 1.6s ease-in-out infinite;pointer-events:none}
+@keyframes bob{50%{transform:translateX(-50%) translateY(-4px)}}
+.foot-note{color:var(--muted);font-size:12px;text-align:center;padding-block:28px 48px}
+
+/* ---------- sheet / modal ---------- */
+.scrim{position:fixed;inset:0;background:rgba(10,14,24,.45);z-index:30;display:flex;align-items:flex-end;justify-content:center;animation:fade .15s}
+@keyframes fade{from{opacity:0}}
+.sheet{background:var(--surface);width:100%;max-width:600px;border-radius:20px 20px 0 0;padding:22px max(20px,env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));animation:up .2s ease-out;max-height:85vh;overflow:auto}
+@keyframes up{from{transform:translateY(40px)}}
+.sheet h3{font-family:var(--f-display);font-weight:400;font-size:22px}
+.sheet .meta{color:var(--muted);font-size:14px;margin:4px 0 16px}
+.row{display:flex;gap:10px}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin:14px 0 18px}
+.bdg{border:2px solid var(--line);border-radius:12px;padding:10px;text-align:center;font-size:12px;color:var(--muted)}
+.bdg b{display:block;font-size:13px;color:var(--ink)}
+.bdg .chip{width:40px;height:40px;margin:0 auto 6px;border-radius:10px;background:var(--sunk);display:grid;place-items:center;font-family:var(--f-mono);font-weight:700;color:var(--muted)}
+.bdg.got{border-color:var(--led)}
+.bdg.got .chip{background:var(--led);color:#3a2500;box-shadow:0 0 14px var(--led-glow)}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kv div{background:var(--sunk);border-radius:12px;padding:10px;text-align:center}
+.kv b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.kv span{font-size:12px;color:var(--muted)}
+
+/* ---------- lesson ---------- */
+.lesson{min-height:100%;display:flex;flex-direction:column}
+.ltop{display:flex;align-items:center;gap:12px;padding-block:14px}
+.bar{flex:1;height:16px;border-radius:99px;background:var(--sunk);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);border-radius:99px;transition:width .35s ease;box-shadow:inset 0 -4px 0 rgba(0,0,0,.12)}
+.hearts{display:flex;align-items:center;gap:4px;font-weight:800;color:var(--bad);font-variant-numeric:tabular-nums}
+.hearts svg{width:24px;height:24px}
+.qarea{flex:1;padding-bottom:180px}
+.qkind{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;color:var(--muted);margin:8px 0 4px;display:flex;justify-content:space-between;align-items:center}
+.qtext{font-size:21px;font-weight:800;line-height:1.45;margin:0 0 16px;text-wrap:balance}
+.bm{font-family:var(--f-body);font-size:12px;letter-spacing:0;border:2px solid var(--line);border-radius:99px;padding:2px 10px;background:none;color:var(--muted);font-weight:700}
+.bm.on{background:var(--led);border-color:var(--led);color:#3a2500}
+pre.code{background:var(--sunk);border:2px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 16px;overflow-x:auto;font-family:var(--f-mono);font-size:15px;line-height:1.6;white-space:pre}
+.tk-k{color:var(--u3)}.tk-s{color:var(--u7)}.tk-n{color:var(--u1)}.tk-b{color:var(--u5)}.tk-c{color:var(--muted)}
+:root[data-theme="dark"] .tk-k,:root[data-theme="dark"] .tk-b{filter:brightness(1.5)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tk-k,:root:not([data-theme="light"]) .tk-b{filter:brightness(1.5)}}
+.big{font-family:var(--f-mono);font-weight:700;font-size:44px;letter-spacing:.12em;text-align:center;background:var(--sunk);border-radius:var(--r);padding:14px;margin:0 0 18px;font-variant-numeric:tabular-nums}
+.big sub{font-size:16px;color:var(--muted);letter-spacing:0}
+.opts{display:grid;gap:10px}
+.opt{display:flex;align-items:center;gap:12px;text-align:left;background:var(--surface);border:2px solid var(--line);border-bottom-width:4px;border-radius:var(--r);padding:12px 14px;font-weight:700;font-size:17px}
+.opt .k{flex:none;width:26px;height:26px;border:2px solid var(--line);border-radius:8px;display:grid;place-items:center;font-size:12px;color:var(--muted);font-family:var(--f-mono)}
+.opt .t{white-space:pre-line;min-width:0}
+.opt.mono .t{font-family:var(--f-mono)}
+.opt.sel{border-color:var(--u5);background:color-mix(in srgb,var(--u5) 12%,var(--surface));color:var(--u5)}
+.opt.sel .k{border-color:var(--u5);color:var(--u5)}
+.opts.two{grid-template-columns:1fr 1fr}
+.opts.two .opt{justify-content:center;font-size:28px;font-family:var(--f-mono);padding:18px}
+.opts.two .opt .k{display:none}
+.field{width:100%;box-sizing:border-box;font-family:var(--f-mono);font-size:24px;font-weight:700;padding:14px 16px;border:2px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink);text-align:center;letter-spacing:.06em}
+.field:focus{border-color:var(--u5);outline:none}
+
+.bits{display:grid;grid-template-columns:repeat(var(--n),minmax(0,64px));justify-content:center;gap:8px;margin:6px 0 14px}
+.bit{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:0}
+.bit .w{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-weight:700}
+.bit .lamp{width:100%;aspect-ratio:1;max-width:100%;border-radius:12px;background:var(--sunk);border:2px solid var(--line);border-bottom-width:5px;display:grid;place-items:center;transition:background .12s, box-shadow .12s}
+.bit .lamp svg{width:58%;height:58%;color:var(--trace)}
+.bit.on .lamp{background:var(--led);border-color:color-mix(in srgb,var(--led) 70%,#000);box-shadow:0 0 18px var(--led-glow)}
+.bit.on .lamp svg{color:#5a3a00}
+.bit .v{font-family:var(--f-mono);font-size:20px;font-weight:700}
+.bitsum{text-align:center;font-family:var(--f-mono);color:var(--muted);font-size:15px;min-height:24px}
+.bitsum b{color:var(--ink);font-size:20px}
+
+.slot{min-height:58px;border-bottom:2px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;padding:8px 0;margin-bottom:22px;align-content:flex-start}
+.bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.tok{font-family:var(--f-mono);font-weight:700;font-size:17px;background:var(--surface);border:2px solid var(--line);border-bottom-width:4px;border-radius:10px;padding:7px 13px}
+.tok.used{visibility:hidden}
+
+.tip{display:grid;grid-template-columns:76px 1fr;gap:12px;align-items:start}
+.tip .say{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:14px 16px;position:relative;min-width:0}
+.tip .say::before{content:"";position:absolute;left:-9px;top:24px;width:14px;height:14px;background:var(--surface);border-left:2px solid var(--line);border-bottom:2px solid var(--line);transform:rotate(45deg)}
+.tip h3{font-family:var(--f-display);font-weight:400;font-size:19px;margin-bottom:6px}
+.tip p{margin:0 0 10px}.tip p:last-child{margin:0}
+.tip pre.code{margin:8px 0 10px;font-size:14px}
+.tip table{border-collapse:collapse;font-family:var(--f-mono);margin:6px 0 10px;font-variant-numeric:tabular-nums}
+.tip td,.tip th{border:2px solid var(--line);padding:3px 12px;text-align:center}
+.tip th{background:var(--sunk);font-weight:700}
+.diag{display:inline-grid;grid-auto-flow:column;gap:6px;margin:6px 0 10px;font-family:var(--f-mono);text-align:center}
+.diag span{display:grid;gap:2px}
+.diag i{font-style:normal;font-size:11px;color:var(--muted)}
+.diag b{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;background:var(--sunk);border:2px solid var(--line)}
+.diag b.on{background:var(--led);border-color:var(--led);color:#3a2500}
+.hl{background:color-mix(in srgb,var(--led) 35%,transparent);border-radius:4px;padding:0 3px;font-weight:800}
+
+/* answer bar */
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--bg);border-top:2px solid var(--line);padding-top:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.foot.ok{background:var(--ok-bg);border-color:transparent}
+.foot.bad{background:var(--bad-bg);border-color:transparent}
+.fb{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}
+.fb .ic{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--surface)}
+.fb .ic svg{width:26px;height:26px}
+.foot.ok .fb{color:var(--ok)}.foot.bad .fb{color:var(--bad)}
+.fb h4{margin:0;font-size:20px;font-weight:800}
+.fb p{margin:2px 0 0;color:var(--ink);font-size:14px}
+.fb .ans{font-family:var(--f-mono);font-weight:700;white-space:pre-line}
+.foot .row .btn{flex:1}
+.foot .try{flex:0 0 auto;width:auto}
+
+/* result */
+.center{text-align:center;padding-block:40px 120px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.center h1{font-family:var(--f-display);font-weight:400;font-size:30px;color:var(--accent)}
+.center p{margin:0;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:420px;margin-top:8px}
+.tile{border:2px solid var(--tc);border-radius:var(--r);overflow:hidden}
+.tile span{display:block;background:var(--tc);color:#fff;font-size:12px;font-weight:800;padding:3px;letter-spacing:.06em}
+.tile b{display:block;font-size:24px;padding:10px 4px;font-variant-numeric:tabular-nums}
+
+/* playground */
+.pg textarea{width:100%;box-sizing:border-box;min-height:220px;font-family:var(--f-mono);font-size:15px;line-height:1.6;padding:14px;border-radius:12px;border:2px solid var(--line);background:var(--sunk);color:var(--ink);resize:vertical;tab-size:2}
+.pg .out{font-family:var(--f-mono);font-size:15px;background:#0E1320;color:#D7F7E6;border-radius:12px;padding:14px;min-height:80px;white-space:pre-wrap;word-break:break-word;margin-top:12px}
+.pg .out .err{color:#FF9A9E}
+.pg .out .dim{color:#7C8AA5}
+.samples{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.samples button{border:2px solid var(--line);background:var(--surface);border-radius:99px;padding:3px 12px;font-size:13px;font-weight:700}
+.pg h1{font-family:var(--f-display);font-weight:400;font-size:24px}
+.pg p.lead{color:var(--muted);margin:4px 0 12px}
+
+/* time attack */
+.ta-timer{font-family:var(--f-mono);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;color:var(--accent)}
+.flash-ok{animation:fok .35s}.flash-bad{animation:fbad .35s}
+@keyframes fok{30%{background:var(--ok-bg);border-color:var(--ok)}}
+@keyframes fbad{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+.toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:800;z-index:50;animation:up .25s;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:90vw}
+
+.mascot{display:block}
+.mascot.bounce{animation:bob2 1.4s ease-in-out infinite}
+@keyframes bob2{50%{transform:translateY(-6px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:420px){.tool{font-size:12px;white-space:nowrap;padding-inline:4px}.band::after{font-size:30px}.qtext{font-size:19px}.big{font-size:36px}.nlabel{width:104px;font-size:12px}}
+</style>
+
+<div id="app"></div>
+
+<script>
+/* =========================================================
+   helpers
+   ========================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const R = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const bin = (n, w) => n.toString(2).padStart(w, '0');
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const todayStr = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const yesterdayStr = () => { const d = new Date(); d.setDate(d.getDate() - 1); return todayStr(d); };
+function uniqInt(ctx, lo, hi) { for (let i = 0; i < 60; i++) { const n = R(lo, hi); if (!ctx.used.has(n)) { ctx.used.add(n); return n; } } return R(lo, hi); }
+function sumExplain(s) { const w = s.length; const parts = []; for (let i = 0; i < w; i++) if (s[i] === '1') parts.push(2 ** (w - 1 - i)); return parts.length ? parts.join(' + ') + ' = ' + parts.reduce((a, b) => a + b, 0) : '0'; }
+function diag(s) { const w = s.length; return '<span class="diag">' + [...s].map((c, i) => `<span><i>${2 ** (w - 1 - i)}</i><b class="${c === '1' ? 'on' : ''}">${c}</b></span>`).join('') + '</span>'; }
+
+function hlJS(src) {
+  const re = /(\/\/.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`[^`]*`)|\b(let|const|function|return|if|else|for|while|of|in|true|false|typeof|undefined|null|new)\b|\b(console|log|Math|floor|length|toString|push)\b|\b(0b[01]+|\d+(?:\.\d+)?)\b/gm;
+  let out = '', last = 0, m;
+  while ((m = re.exec(src))) {
+    out += esc(src.slice(last, m.index));
+    const cls = m[1] ? 'c' : m[2] ? 's' : m[3] ? 'k' : m[4] ? 'b' : 'n';
+    out += `<span class="tk-${cls}">${esc(m[0])}</span>`;
+    last = re.lastIndex;
+  }
+  return out + esc(src.slice(last));
+}
+const codeBlock = src => `<pre class="code">${hlJS(src)}</pre>`;
+
+/* =========================================================
+   icons + mascot
+   ========================================================= */
+const I = {
+  flame: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3.5 5 5.6 5 10.5A5 5 0 0 1 12 22a5 5 0 0 1-5-5c0-2.6 1.4-4 2.4-5 .3 1.7 1.1 2.7 2.1 3-1-3.2.4-6.6.5-13z"/></svg>',
+  bolt: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-8-5.2-8-11a4.6 4.6 0 0 1 8-3.1A4.6 4.6 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  cross: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10V8a5 5 0 0 1 10 0v2h1a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1zm2 0h6V8a3 3 0 0 0-6 0z"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.6A1 1 0 0 0 8 5.5z"/></svg>',
+  bulb: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2zM9 20h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1z"/></svg>',
+  review: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h10l3 3v15H6z"/><path d="M9 10h7M9 14h7M9 18h4"/></svg>',
+  timer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>',
+  term: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 9l3 3-3 3M12 15h5"/></svg>',
+  x: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  sound: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l5 4V6L8 10z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>',
+  mute: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l5 4V6L8 10z"/><path d="M17 10l4 4M21 10l-4 4"/></svg>'
+};
+function mascot(size = 76, mood = 'happy', bounce = false) {
+  const mouth = mood === 'happy' ? '<path d="M30 47q8 7 16 0" stroke="#18202E" stroke-width="3" fill="none" stroke-linecap="round"/>'
+    : mood === 'sad' ? '<path d="M31 50q7-6 14 0" stroke="#18202E" stroke-width="3" fill="none" stroke-linecap="round"/>'
+    : '<path d="M32 48h12" stroke="#18202E" stroke-width="3" stroke-linecap="round"/>';
+  const led = mood === 'sad' ? '#97A3B8' : '#FFB020';
+  return `<svg class="mascot ${bounce ? 'bounce' : ''}" width="${size}" height="${size}" viewBox="0 0 76 76" aria-hidden="true">
+    <line x1="38" y1="14" x2="38" y2="6" stroke="#5B6880" stroke-width="3"/>
+    <circle cx="38" cy="6" r="5" fill="${led}"/>
+    ${[24,34,44,54].map(y => `<rect x="4" y="${y}" width="8" height="4" rx="1" fill="#8592A8"/><rect x="64" y="${y}" width="8" height="4" rx="1" fill="#8592A8"/>`).join('')}
+    <rect x="10" y="14" width="56" height="54" rx="12" fill="#2573C4"/>
+    <rect x="15" y="19" width="46" height="40" rx="8" fill="#E8F1FB"/>
+    <circle cx="29" cy="35" r="4.5" fill="#18202E"/><circle cx="47" cy="35" r="4.5" fill="#18202E"/>
+    <circle cx="30.5" cy="33.5" r="1.4" fill="#fff"/><circle cx="48.5" cy="33.5" r="1.4" fill="#fff"/>
+    ${mouth}
+    <text x="38" y="66" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7" font-weight="700" fill="#BFD6F0">0b01</text>
+  </svg>`;
+}
+
+/* =========================================================
+   curriculum
+   ========================================================= */
+const UNITS = [
+{ title: '2進数のきほん', desc: 'コンピュータは 0 と 1 だけで考えている', color: 'var(--u1)', lessons: [
+  { id: 'u1l1', title: '0と1の世界', items: [
+    { t: 'tip', title: 'コンピュータの中はスイッチだらけ', body: '<p>電気が流れている状態を <b>1</b>、流れていない状態を <b>0</b> で表します。</p><p>この「0 か 1」を入れる小さな箱を <b>ビット (bit)</b> と呼びます。</p>' },
+    { t: 'choice', q: '情報を表すいちばん小さな単位は？', opts: ['ビット', 'バイト', 'ピクセル', 'ファイル'], a: 0, ex: 'bit は binary digit（2進数の1けた）の略です。' },
+    { t: 'choice', q: '1ビットで表せるのは何通り？', opts: ['2通り', '1通り', '10通り', '無限'], a: 0, ex: '0 か 1 の2通りです。' },
+    { t: 'tip', title: 'ビットを並べると', body: '<p>2ビットなら <code>00</code> <code>01</code> <code>10</code> <code>11</code> の4通り。</p><p>ビットが1つ増えるたびに、表せるパターンは <b>2倍</b> になります。</p>' },
+    { t: 'choice', q: '2ビットで表せるのは何通り？', opts: ['4通り', '2通り', '3通り', '8通り'], a: 0 },
+    { t: 'input', q: '3ビットでは何通り？', a: ['8', '8通り'], ph: '数字で答える', ex: '2 × 2 × 2 = 8通り' },
+    { t: 'choice', q: '2進数として正しくないのはどれ？', opts: ['1021', '1011', '0001', '1100'], a: 0, mono: true, ex: '2進数で使える数字は 0 と 1 だけです。' }
+  ]},
+  { id: 'u1l2', title: '位の重み', items: [
+    { t: 'tip', title: '10進数の位を思い出そう', body: '<p><code>352</code> = 3×100 + 5×10 + 2×1</p><p>右から 1, 10, 100… と <b>10倍</b> ずつ重くなります。</p>' },
+    { t: 'tip', title: '2進数は2倍ずつ', body: '<p>右から <b>1, 2, 4, 8…</b> と2倍ずつ。1 が立っている位の重みを足すと10進数になります。</p>' + diag('0101') + '<p><code>0101</code> = 4 + 1 = <b>5</b></p>' },
+    { t: 'choice', q: '2進数の右から3番目の位の重みは？', opts: ['4', '3', '100', '8'], a: 0 },
+    { t: 'bits', q: 'ランプをつけて 5 を作ろう', n: 4, target: 5, showSum: true },
+    { t: 'bits', q: 'ランプをつけて 10 を作ろう', n: 4, target: 10, showSum: true },
+    { t: 'choice', q: '4ビットで表せるいちばん大きな数は？', opts: ['15', '16', '8', '4'], a: 0, ex: '1111 = 8 + 4 + 2 + 1 = 15' }
+  ]},
+  { id: 'u1l3', title: '2進数→10進数', items: [
+    { t: 'tip', title: 'おさらい', body: '<p>1 が立っている位の重みを足すだけ。</p>' + diag('1011') + '<p><code>1011</code> = 8 + 2 + 1 = <b>11</b></p>' },
+    ctx => { const n = uniqInt(ctx, 1, 15), s = bin(n, 4); return { t: 'input', q: '10進数に直そう', big: s, a: [String(n)], ph: '10進数', ex: sumExplain(s) }; },
+    ctx => { const n = uniqInt(ctx, 1, 15), s = bin(n, 4); return { t: 'input', q: '10進数に直そう', big: s, a: [String(n)], ph: '10進数', ex: sumExplain(s) }; },
+    ctx => { const n = uniqInt(ctx, 17, 31), s = bin(n, 5); const rev = parseInt([...s].reverse().join(''), 2);
+      const ds = [...new Set([rev, n + 1, n - 2, n + 4, n - 8].filter(v => v !== n && v > 0))].slice(0, 3);
+      return { t: 'choice', q: '5ビットになっても同じ！ 10進数では？', big: s, opts: [String(n), ...ds.map(String)], a: 0, ex: sumExplain(s) }; },
+    ctx => { const n = uniqInt(ctx, 1, 15); return { t: 'bits', q: `ランプをつけて ${n} を作ろう（合計は出ないよ）`, n: 4, target: n, showSum: false }; }
+  ]},
+  { id: 'u1l4', title: '10進数→2進数', items: [
+    { t: 'tip', title: '大きい重みから引いていく', body: '<p>13 を2進数にしてみよう。</p><p>8 を使う → 残り 5<br>4 を使う → 残り 1<br>2 は使わない<br>1 を使う → 残り 0</p>' + diag('1101') + '<p>答えは <b>1101</b></p>' },
+    ctx => { const n = uniqInt(ctx, 2, 15); return { t: 'bits', q: `${n} を2進数で作ろう`, n: 4, target: n, showSum: false }; },
+    ctx => { const n = uniqInt(ctx, 16, 31); return { t: 'bits', q: `${n} を2進数で作ろう`, n: 5, target: n, showSum: false }; },
+    ctx => { const n = uniqInt(ctx, 2, 15); return { t: 'input', q: '2進数に直そう（4けた）', big: `${n}<sub>（10進数）</sub>`, a: [bin(n, 4), n.toString(2)], ph: '例: 0110', ex: `${n} = ${sumExplain(bin(n, 4)).split(' = ')[0]} → ${bin(n, 4)}` }; },
+    { t: 'input', q: '2進数で 1 を足すと？', big: '0111 + 1', a: ['1000'], ph: '4けたの2進数', ex: '1 + 1 = 10（くり上がり）が続いて <b>1000</b>。10進数なら 7 + 1 = 8 です。' }
+  ]}
+]},
+{ title: 'ビットとバイト', desc: '8つ集まると「バイト」になる', color: 'var(--u2)', lessons: [
+  { id: 'u2l1', title: 'バイトと容量', items: [
+    { t: 'tip', title: '8ビット = 1バイト', body: '<p>ビットを <b>8つ</b> まとめたものを <b>1バイト (byte)</b> と呼びます。ファイルの大きさは主にバイトで数えます。</p>' + diag('11001000') },
+    { t: 'input', q: '1バイトで表せるのは何通り？', a: ['256', '256通り'], ph: '数字で答える', ex: '2 を8回かけると 256 です。' },
+    { t: 'bits', q: '8ビットで 200 を作ろう', n: 8, target: 200, showSum: true },
+    { t: 'choice', q: '1バイトで表せる最大の数は？', opts: ['255', '256', '100', '128'], a: 0, ex: '0 から数えるので 0〜255 の256通り。' },
+    { t: 'choice', q: '1KB（キロバイト）はおよそ何バイト？', opts: ['約1000バイト', '約100バイト', '8バイト', '約100万バイト'], a: 0, ex: '1000 とする場合と 1024 (2の10乗) とする場合があります。' }
+  ]},
+  { id: 'u2l2', title: '16進数', items: [
+    { t: 'tip', title: '0〜9 と A〜F', body: '<p>16進数は 16種類の文字を使います。</p><table><tr><th>16進</th><td>9</td><td>A</td><td>B</td><td>C</td><td>D</td><td>E</td><td>F</td></tr><tr><th>10進</th><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr></table><p>4ビット（0〜15）がちょうど <b>16進数1けた</b> になるので、2進数を短く書くのに便利です。</p>' },
+    { t: 'choice', q: '16進数の F は10進数でいくつ？', opts: ['15', '16', '6', '10'], a: 0 },
+    { t: 'choice', q: '2進数 1010 を16進数で書くと？', big: '1010', opts: ['A', '10', 'B', '5'], a: 0, ex: '1010 = 8 + 2 = 10 → 16進数では A' },
+    { t: 'tip', title: 'Webの色も16進数', body: '<p><code>#FF0000</code> は 赤=FF(255)・緑=00・青=00 で「赤」。2けたずつ 赤・緑・青 の強さを表します。</p>' },
+    { t: 'choice', q: '#00FF00 は何色？', opts: ['緑', '赤', '青', '黒'], a: 0 },
+    { t: 'choice', q: '2進数 1111 1111 を16進数で書くと？', big: '1111 1111', opts: ['FF', '11', 'F', '255'], a: 0, mono: true, ex: '4ビットずつ区切ると 1111 = F が2つ → FF（10進数では 255）' }
+  ]},
+  { id: 'u2l3', title: '文字も数字', items: [
+    { t: 'tip', title: '文字には番号がある', body: '<p>コンピュータは文字も <b>番号（文字コード）</b> で覚えています。ASCII という決まりでは</p><table><tr><th>文字</th><td>A</td><td>B</td><td>C</td><td>a</td><td>b</td></tr><tr><th>番号</th><td>65</td><td>66</td><td>67</td><td>97</td><td>98</td></tr></table>' },
+    { t: 'choice', q: "'D' の文字コードは？", opts: ['68', '67', '69', '4'], a: 0, ex: 'A=65 から順番に 1 ずつ増えます。' },
+    { t: 'input', q: "'a' は 97。では 'c' は？", a: ['99'], ph: '数字' },
+    { t: 'choice', q: '文字コード 72・105 が表す文字は？（H=72）', opts: ['Hi', 'HI', 'hi', 'Ok'], a: 0, ex: '小文字 i は 105、大文字 I は 73 です。' },
+    { t: 'choice', q: '日本語や絵文字を扱える文字コードは？', opts: ['UTF-8', 'ASCII', '2進数', 'CSS'], a: 0, ex: 'ASCII は英数字だけ。UTF-8 は世界中の文字を扱えます。' }
+  ]}
+]},
+{ title: '論理演算', desc: 'AND・OR・NOT で「判断」をつくる', color: 'var(--u3)', lessons: [
+  { id: 'u3l1', title: 'AND と OR', items: [
+    { t: 'tip', title: '2つの入力から1つの答え', body: '<p><b>AND</b>：両方 1 のときだけ 1<br><b>OR</b>：どちらか 1 なら 1</p><table><tr><th>A</th><th>B</th><th>AND</th><th>OR</th></tr><tr><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td>0</td><td>1</td></tr><tr><td>1</td><td>0</td><td>0</td><td>1</td></tr><tr><td>1</td><td>1</td><td>1</td><td>1</td></tr></table>' },
+    { t: 'choice', q: '1 AND 0 = ?', opts: ['0', '1'], a: 0, two: true },
+    { t: 'choice', q: '1 OR 0 = ?', opts: ['1', '0'], a: 0, two: true },
+    { t: 'choice', q: '0 OR 0 = ?', opts: ['0', '1'], a: 0, two: true },
+    { t: 'choice', q: '「晴れ AND 宿題が終わった」なら遊びに行ける。晴れだけど宿題はまだ。行ける？', opts: ['行けない', '行ける'], a: 0, ex: 'AND は両方そろわないとダメ。' },
+    { t: 'choice', q: '「現金 OR カード」で払える。カードだけ持っている。払える？', opts: ['払える', '払えない'], a: 0, ex: 'OR はどちらか片方でOK。' }
+  ]},
+  { id: 'u3l2', title: 'NOT と XOR', items: [
+    { t: 'tip', title: 'ひっくり返す・ちがいを見る', body: '<p><b>NOT</b>：0 と 1 を反転（NOT 1 = 0）<br><b>XOR</b>：2つが <b>ちがう</b> ときだけ 1</p><table><tr><th>A</th><th>B</th><th>XOR</th></tr><tr><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td>1</td></tr><tr><td>1</td><td>0</td><td>1</td></tr><tr><td>1</td><td>1</td><td>0</td></tr></table>' },
+    { t: 'choice', q: 'NOT 1 = ?', opts: ['0', '1'], a: 0, two: true },
+    { t: 'choice', q: '1 XOR 1 = ?', opts: ['0', '1'], a: 0, two: true },
+    { t: 'choice', q: 'NOT (1 AND 0) = ?', opts: ['1', '0'], a: 0, two: true, ex: 'かっこの中 1 AND 0 = 0、NOT 0 = 1' },
+    { t: 'choice', q: '(1 OR 0) AND 0 = ?', opts: ['0', '1'], a: 0, two: true, ex: '(1 OR 0) = 1、1 AND 0 = 0' }
+  ]},
+  { id: 'u3l3', title: 'ビットごとの計算', items: [
+    { t: 'tip', title: 'けたごとに計算する', body: '<p>同じ位どうしで AND / OR / XOR をします。</p><pre class="code">  1100\nAND 1010\n  ----\n  1000</pre>' },
+    { t: 'input', q: 'けたごとに AND しよう', big: '1110 AND 0111', a: ['0110', '110'], ph: '4けたの2進数', ex: '両方 1 なのは真ん中の2けただけ → 0110' },
+    { t: 'input', q: 'けたごとに XOR しよう', big: '1010 XOR 1111', a: ['0101', '101'], ph: '4けたの2進数', ex: '1111 と XOR すると全部ひっくり返る → 0101' },
+    ctx => { const a = R(1, 15), b = R(1, 15), op = Math.random() < .5 ? 'AND' : 'OR'; const r = op === 'AND' ? a & b : a | b;
+      return { t: 'input', q: `けたごとに ${op} しよう`, big: `${bin(a, 4)} ${op} ${bin(b, 4)}`, a: [bin(r, 4), r.toString(2)], ph: '4けたの2進数' }; },
+    { t: 'choice', q: 'ある数を2進数にして AND 0001 したら 1 になった。その数は？', opts: ['奇数', '偶数'], a: 0, ex: 'いちばん右のビットが 1 の数は奇数です。' }
+  ]}
+]},
+{ id: 'net', title: 'IPアドレスとサブネット', desc: 'ネットの住所も 2進数と AND でできている', color: 'var(--u8)', lessons: [
+  { id: 'n1', title: 'IPアドレスってなに？', items: [
+    { t: 'tip', title: 'ネットの住所', body: '<p>インターネットにつながる機器には、それぞれ <b>IPアドレス</b> という住所がついています。データはこの住所をたよりに届きます。</p><p>よく使われる <b>IPv4</b> は、0〜255 の数字を <b>4つ</b>、点で区切って書きます。</p><pre class="code">192.168.1.10</pre>' },
+    { t: 'choice', q: 'IPアドレスの役割は？', opts: ['ネット上の住所', 'パスワード', '電話番号', '画面の明るさ'], a: 0 },
+    { t: 'choice', q: 'IPv4 アドレスとして正しいのはどれ？', opts: ['192.168.1.10', '192.168.1.256', '192.168.1', '10.0.0.0.1'], a: 0, mono: true, ex: '数字は4つ、どれも 0〜255。256 は1バイト（8ビット）に入りません。' },
+    { t: 'tip', title: '0〜255 に見覚えは？', body: '<p>Unit 2 で学んだ <b>1バイト = 8ビット = 0〜255</b> です。</p><p>IPv4 は 1バイトの数を4つ並べたもの。区切りの1つ1つを <b>オクテット</b>（8つ組）と呼びます。</p>' },
+    { t: 'input', q: 'IPv4 アドレス全体は何ビット？', a: ['32', '32ビット'], ph: '数字で答える', ex: '8ビット × 4 = 32ビット' },
+    { t: 'choice', q: 'IPv4 で作れるアドレスはおよそいくつ？', opts: ['約43億', '約1000', '約100万', '無限'], a: 0, ex: '2 の32乗 = 4,294,967,296。足りなくなってきたので、128ビットの IPv6 も使われています。' }
+  ]},
+  { id: 'n2', title: 'IPアドレスを2進数で', items: [
+    { t: 'tip', title: 'オクテットを8ビットに', body: '<p>コンピュータの中では、IPアドレスも 2進数です。</p>' + diag('11000000') + '<p><code>192</code> = 128 + 64 → <b>11000000</b></p><p><code>192.168.1.10</code> を全部2進数にすると</p><pre class="code">11000000.10101000.\n00000001.00001010</pre>' },
+    { t: 'bits', q: '8ビットで 168 を作ろう', n: 8, target: 168, showSum: true },
+    ctx => { const L = [10, 172, 1, 255, 128, 64, 224, 240, 248, 252, 100, 16]; const n = L[uniqInt(ctx, 0, L.length - 1)];
+      return { t: 'input', q: 'このオクテットを8ビットの2進数にしよう', big: `${n}`, a: [bin(n, 8), n.toString(2)], ph: '8けたの2進数', ex: `${n} = ${sumExplain(bin(n, 8)).split(' = ')[0]} → ${bin(n, 8)}` }; },
+    ctx => { const n = uniqInt(ctx, 129, 254), s = bin(n, 8); const ds = [...new Set([n - 1, n + 1, n - 16, n + 32, 255 - n].filter(v => v !== n && v >= 0 && v <= 255))].slice(0, 3);
+      return { t: 'choice', q: 'IPアドレスの一部です。10進数では？', big: s, opts: [String(n), ...ds.map(String)], a: 0, ex: sumExplain(s) }; },
+    { t: 'bits', q: '8ビットで 10 を作ろう（合計は出ないよ）', n: 8, target: 10, showSum: false }
+  ]},
+  { id: 'n3', title: 'ネットワーク部とホスト部', items: [
+    { t: 'tip', title: '「町」と「番地」', body: '<p>IPアドレスは2つに分かれます。</p><p><b>ネットワーク部</b>：どのネットワーク（町）か<br><b>ホスト部</b>：その中のどの機器（番地）か</p><pre class="code">192.168.1.10/24</pre><p><code>/24</code> は「前から <b>24ビット</b> がネットワーク部」という意味。24ビット = 3オクテットなので、<span class="hl">192.168.1</span> が町、<span class="hl">10</span> が番地です。</p>' },
+    { t: 'choice', q: '192.168.1.10/24 のネットワーク部は？', opts: ['192.168.1', '192.168', '10', '192.168.1.10'], a: 0, mono: true },
+    { t: 'choice', q: '/24 のとき、ホスト部は何ビット？', opts: ['8ビット', '24ビット', '16ビット', '32ビット'], a: 0, ex: '全体 32ビット − ネットワーク部 24ビット = 8ビット' },
+    { t: 'tip', title: '同じ町なら直接話せる', body: '<p>ネットワーク部が同じ機器どうしは、同じネットワークの仲間。ルーターを通さずに直接やりとりできます。</p><p>ネットワーク部がちがう相手には、<b>ルーター</b> が中継して届けます。</p>' },
+    { t: 'choice', q: '192.168.1.10/24 と同じネットワークにいるのは？', opts: ['192.168.1.200', '192.168.2.10', '10.168.1.10', '192.169.1.10'], a: 0, mono: true, ex: '前の3つ（192.168.1）が同じなら同じネットワーク。' },
+    { t: 'input', q: '172.16.5.4/16 のホスト部は何ビット？', a: ['16', '16ビット'], ph: '数字で答える', ex: '32 − 16 = 16ビット。ネットワーク部は 172.16 です。' }
+  ]},
+  { id: 'n4', title: 'サブネットマスク', items: [
+    { t: 'tip', title: '1 と 0 の「型紙」', body: '<p><b>サブネットマスク</b> は、ネットワーク部を 1、ホスト部を 0 にした32ビットの数です。</p><p>/24 のマスク（1 が24個、0 が8個）</p><pre class="code">11111111.11111111.\n11111111.00000000\n= 255.255.255.0</pre>' },
+    { t: 'choice', q: '/24 のサブネットマスクは？', opts: ['255.255.255.0', '255.255.0.0', '255.255.255.255', '0.0.0.255'], a: 0, mono: true },
+    { t: 'choice', q: '/16 のサブネットマスクは？', opts: ['255.255.0.0', '255.255.255.0', '255.0.0.0', '16.16.16.16'], a: 0, mono: true, ex: '1 が16個 = 255 が2つ' },
+    { t: 'bits', q: '/26 のマスクの4つ目のオクテットを作ろう（24ビットの後に 1 が2個）', n: 8, target: 192, showSum: true, ex: '11000000 = 128 + 64 = 192。/26 のマスクは 255.255.255.192' },
+    { t: 'tip', title: 'AND の出番', body: '<p>IPアドレスとマスクをけたごとに <b>AND</b> すると、ホスト部が 0 になって <b>ネットワークアドレス</b> が残ります。</p><p>192.168.1.150/26 の場合、前の3つはマスクが 255（全部 1）なのでそのまま。4つ目だけ計算します。</p><pre class="code">    150  10010110\nAND 192  11000000\n  = 128  10000000</pre><p>ネットワークアドレスは <b>192.168.1.128</b></p>' },
+    ctx => { const x = uniqInt(ctx, 1, 254), net = x & 192;
+      return { t: 'input', q: 'ネットワークアドレスの4つ目のオクテットは？', big: `192.168.1.${x}<sub> /26</sub>`, a: [String(net)], ph: '10進数', ex: `${bin(x, 8)} AND 11000000 = ${bin(net, 8)} → <b>${net}</b>` }; },
+    { t: 'choice', q: 'マスク 255.255.255.128 は / いくつ？', opts: ['/25', '/24', '/26', '/128'], a: 0, mono: true, ex: '128 = 10000000 なので 1 は 24 + 1 = 25個' }
+  ]},
+  { id: 'n5', title: 'つなげられる台数', items: [
+    { t: 'tip', title: 'ホスト部で台数が決まる', body: '<p>ホスト部が n ビットなら、番地は 2<sup>n</sup> 通り。</p><p>ただし2つは機器に使えません。</p><p>ホスト部が <b>全部 0</b>：ネットワークアドレス（町の名前）<br>ホスト部が <b>全部 1</b>：ブロードキャストアドレス（町の全員あて）</p><p>使える台数 = <b>2<sup>n</sup> − 2</b></p>' },
+    { t: 'input', q: '/24 のネットワークに機器は何台つなげる？', a: ['254', '254台'], ph: '数字で答える', ex: 'ホスト部 8ビット → 256 − 2 = 254台' },
+    { t: 'choice', q: '192.168.1.0/24 のブロードキャストアドレスは？', opts: ['192.168.1.255', '192.168.1.0', '192.168.1.254', '255.255.255.255'], a: 0, mono: true, ex: 'ホスト部を全部 1（11111111 = 255）にしたもの。' },
+    ctx => { const n = uniqInt(ctx, 25, 30), h = 32 - n;
+      return { t: 'input', q: `/${n} のネットワークに機器は何台つなげる？`, a: [String(2 ** h - 2)], ph: '数字で答える', ex: `ホスト部 ${h}ビット → 2<sup>${h}</sup> − 2 = ${2 ** h - 2}台` }; },
+    { t: 'choice', q: '30台つなぎたい。いちばん小さく区切れるのは？', opts: ['/27', '/28', '/24', '/30'], a: 0, mono: true, ex: '/27 はホスト部 5ビット → 32 − 2 = 30台でぴったり。/28 は 14台しかつなげません。' }
+  ]}
+]},
+{ title: '変数とデータ型', desc: 'ここから JavaScript を書いてみよう', color: 'var(--u4)', lessons: [
+  { id: 'u4l1', title: '変数', items: [
+    { t: 'tip', title: '変数は名前つきの箱', body: '<p>値に名前をつけてしまっておけます。<code>console.log()</code> は画面に表示する命令です。</p><pre class="code">let score = 10;\nconsole.log(score); // 10</pre><p><code>=</code> は「等しい」ではなく <b>右の値を左の箱に入れる</b> という意味です。</p>' },
+    { t: 'choice', q: '表示されるのは？', code: 'let x = 5;\nx = 8;\nconsole.log(x);', opts: ['8', '5', '13', 'エラー'], a: 0, ex: 'あとから入れた 8 で上書きされます。' },
+    { t: 'order', q: '変数 age に 20 を入れよう', tokens: ['let', 'age', '=', '20', ';'], extra: ['==', 'log'] },
+    { t: 'choice', q: '表示されるのは？', code: 'let a = 3;\nlet b = a + 2;\nconsole.log(b);', opts: ['5', '3', 'a + 2', '32'], a: 0 },
+    { t: 'input', q: '表示されるのは？', code: 'let n = 10;\nn = n + 1;\nconsole.log(n);', a: ['11'], ph: '表示される値', ex: '右側を先に計算：10 + 1 = 11 を n に入れ直します。' }
+  ]},
+  { id: 'u4l2', title: 'データ型', items: [
+    { t: 'tip', title: '値には種類（型）がある', body: '<p><b>number</b>：数 <code>42</code> <code>3.14</code><br><b>string</b>：文字列 <code>"こんにちは"</code>（引用符でかこむ）<br><b>boolean</b>：<code>true</code> か <code>false</code></p><p><code>typeof</code> で型を調べられます。</p>' },
+    { t: 'choice', q: '表示されるのは？', code: 'console.log(typeof "hello");', opts: ['string', 'number', 'boolean', 'hello'], a: 0, mono: true },
+    { t: 'choice', q: '表示されるのは？', code: 'console.log(5 + 3);', opts: ['8', '53', '5 + 3', 'エラー'], a: 0, mono: true },
+    { t: 'choice', q: '表示されるのは？', code: 'console.log("5" + "3");', opts: ['53', '8', 'エラー', '5 3'], a: 0, mono: true, ex: '文字列どうしの + は「つなげる」です。' },
+    { t: 'choice', q: '表示されるのは？', code: 'console.log("5" + 3);', opts: ['53', '8', 'エラー', 'NaN'], a: 0, mono: true, ex: 'JavaScript は数を文字に変えてつなげます。型がまざると思わぬ結果になるので注意！' }
+  ]},
+  { id: 'u4l3', title: '計算してみよう', items: [
+    { t: 'tip', title: '計算の記号', body: '<p><code>+</code> たす　<code>-</code> ひく　<code>*</code> かける　<code>/</code> わる<br><code>%</code> わり算の <b>あまり</b>　<code>**</code> べき乗（2 ** 3 = 2×2×2）</p>' },
+    { t: 'choice', q: '表示されるのは？', code: 'console.log(7 / 2);', opts: ['3.5', '3', '3 あまり 1', '4'], a: 0, mono: true },
+    { t: 'input', q: '表示されるのは？', code: 'console.log(7 % 2);', a: ['1'], ph: '表示される値', ex: '7 ÷ 2 = 3 あまり 1' },
+    { t: 'input', q: '表示されるのは？', code: 'console.log(2 ** 3);', a: ['8'], ph: '表示される値' },
+    { t: 'order', q: 'x を 2 倍して y に入れよう', tokens: ['let', 'y', '=', 'x', '*', '2', ';'], alts: [['let', 'y', '=', '2', '*', 'x', ';']], extra: ['**', '%'] },
+    { t: 'choice', q: '偶数かどうか調べるのに便利な記号は？', opts: ['%', '**', '/', '='], a: 0, mono: true, ex: 'n % 2 が 0 なら偶数です。' }
+  ]}
+]},
+{ title: '条件分岐', desc: 'もし〜なら、で動きを変える', color: 'var(--u5)', lessons: [
+  { id: 'u5l1', title: 'if 文', items: [
+    { t: 'tip', title: 'もし〜なら', body: '<pre class="code">if (x > 5) {\n  console.log("大きい");\n}</pre><p>( ) の中が <code>true</code> のときだけ { } の中を実行します。</p><p>比べる記号：<code>===</code> 等しい　<code>!==</code> 等しくない　<code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code></p>' },
+    { t: 'choice', q: '「等しいか」を比べる記号は？', opts: ['===', '=', '=>', '!=='], a: 0, mono: true, ex: '= は「入れる」。比べるときは ===' },
+    { t: 'choice', q: '表示されるのは？', code: 'console.log(3 > 5);', opts: ['false', 'true', '3', 'エラー'], a: 0, mono: true },
+    { t: 'choice', q: '表示されるのは？', code: 'let x = 7;\nif (x > 5) {\n  console.log("大きい");\n}\nconsole.log("おわり");', opts: ['大きい\nおわり', 'おわり', '大きい', '何も出ない'], a: 0 },
+    { t: 'choice', q: '表示されるのは？', code: 'let x = 3;\nif (x > 5) {\n  console.log("大きい");\n}\nconsole.log("おわり");', opts: ['おわり', '大きい\nおわり', '大きい', '何も出ない'], a: 0, ex: '3 > 5 は false なので { } の中はとばされます。' }
+  ]},
+  { id: 'u5l2', title: 'else と else if', items: [
+    { t: 'tip', title: 'そうでなければ', body: '<pre class="code">if (temp >= 30) {\n  console.log("暑い");\n} else if (temp >= 20) {\n  console.log("ちょうどいい");\n} else {\n  console.log("寒い");\n}</pre><p>上から順に調べて、<b>最初に当てはまった1つだけ</b> 実行します。</p>' },
+    { t: 'choice', q: 'temp が 25 のとき表示されるのは？', opts: ['ちょうどいい', '暑い', '寒い', '暑い\nちょうどいい'], a: 0 },
+    { t: 'choice', q: 'temp が 30 のとき表示されるのは？', opts: ['暑い', '暑い\nちょうどいい', 'ちょうどいい', '寒い'], a: 0, ex: '最初の条件に当てはまったら、残りは調べません。' },
+    { t: 'order', q: '「もし x が 0 なら」の1行目を作ろう', tokens: ['if', '(', 'x', '===', '0', ')', '{'], extra: ['=', 'else'] },
+    { t: 'choice', q: '表示されるのは？（&& は AND）', code: 'let score = 80;\nif (score >= 60 && score < 90) {\n  console.log("合格");\n} else {\n  console.log("がんばろう");\n}', opts: ['合格', 'がんばろう', '合格\nがんばろう', 'エラー'], a: 0, ex: '80 >= 60 も 80 < 90 も true。true AND true = true' }
+  ]}
+]},
+{ title: 'くりかえし', desc: '同じことを何度でも', color: 'var(--u6)', lessons: [
+  { id: 'u6l1', title: 'for 文', items: [
+    { t: 'tip', title: '決まった回数くりかえす', body: '<pre class="code">for (let i = 0; i < 3; i++) {\n  console.log(i);\n}</pre><p><b>i を 0 から始めて</b>、<b>i < 3 の間</b>、<b>1回ごとに i を1増やす</b>。表示は 0, 1, 2 です。</p>' },
+    { t: 'input', q: '★ は何回表示される？', code: 'for (let i = 0; i < 5; i++) {\n  console.log("★");\n}', a: ['5', '5回'], ph: '回数' },
+    { t: 'choice', q: '表示されるのは？', code: 'for (let i = 1; i <= 3; i++) {\n  console.log(i);\n}', opts: ['1\n2\n3', '0\n1\n2', '1\n2', '0\n1\n2\n3'], a: 0, mono: true, ex: 'i = 1 から始めて、3 以下の間くりかえします。' },
+    { t: 'input', q: '表示されるのは？', code: 'let total = 0;\nfor (let i = 0; i < 4; i++) {\n  total = total + i;\n}\nconsole.log(total);', a: ['6'], ph: '表示される値', ex: '0 + 1 + 2 + 3 = 6' },
+    { t: 'choice', q: '「2進数の位の重み」を表示するコード。出力は？', code: 'let w = 1;\nfor (let i = 0; i < 4; i++) {\n  console.log(w);\n  w = w * 2;\n}', opts: ['1\n2\n4\n8', '1\n2\n3\n4', '2\n4\n6\n8', '0\n1\n2\n3'], a: 0, mono: true, ex: 'Unit 1 で学んだ重み 1, 2, 4, 8 が出てきます。' }
+  ]},
+  { id: 'u6l2', title: 'while 文', items: [
+    { t: 'tip', title: '条件が true の間くりかえす', body: '<pre class="code">let n = 3;\nwhile (n > 0) {\n  console.log(n);\n  n = n - 1;\n}</pre><p>条件がいつまでも false にならないと、終わらない <b>無限ループ</b> になります。</p>' },
+    { t: 'choice', q: '上のコードの表示は？', code: 'let n = 3;\nwhile (n > 0) {\n  console.log(n);\n  n = n - 1;\n}', opts: ['3\n2\n1', '3\n2\n1\n0', '1\n2\n3', '終わらない'], a: 0, mono: true },
+    { t: 'choice', q: 'このコードはどうなる？', code: 'let n = 5;\nwhile (n > 0) {\n  console.log(n);\n}', opts: ['無限ループ', '5 が1回だけ', '5 4 3 2 1', 'エラー'], a: 0, ex: 'n が減らないので、ずっと n > 0 が true のまま。' },
+    { t: 'input', q: '表示されるのは？', code: 'let n = 1;\nwhile (n < 100) {\n  n = n * 2;\n}\nconsole.log(n);', a: ['128'], ph: '表示される値', ex: '1 → 2 → 4 → … → 64 → 128。128 < 100 は false で終了。' }
+  ]},
+  { id: 'u6l3', title: '配列', items: [
+    { t: 'tip', title: 'たくさんの値をまとめる', body: '<pre class="code">let fruits = ["りんご", "みかん", "ぶどう"];\nconsole.log(fruits[0]); // りんご\nconsole.log(fruits.length); // 3</pre><p>番号（インデックス）は <b>0 から</b> 数えます。</p>' },
+    { t: 'choice', q: 'fruits[1] は？', opts: ['みかん', 'りんご', 'ぶどう', 'エラー'], a: 0 },
+    { t: 'input', q: '表示されるのは？', code: 'let nums = [3, 1, 4, 1, 5];\nconsole.log(nums.length);', a: ['5'], ph: '表示される値' },
+    { t: 'input', q: '表示されるのは？', code: 'let nums = [3, 5, 2];\nlet total = 0;\nfor (const n of nums) {\n  total = total + n;\n}\nconsole.log(total);', a: ['10'], ph: '表示される値', ex: 'for...of は配列の中身を1つずつ取り出します。3 + 5 + 2 = 10' },
+    { t: 'choice', q: '表示されるのは？', code: 'let nums = [2, 4, 6];\nconsole.log(nums[3]);', opts: ['undefined', '6', 'エラー', '0'], a: 0, mono: true, ex: '番号 3 は4番目。中身がないので undefined（未定義）になります。' }
+  ]}
+]},
+{ title: '関数', desc: '処理に名前をつけて使い回す', color: 'var(--u7)', lessons: [
+  { id: 'u7l1', title: '関数をつくる', items: [
+    { t: 'tip', title: 'function と return', body: '<pre class="code">function double(x) {\n  return x * 2;\n}\nconsole.log(double(4)); // 8</pre><p><code>x</code> は受け取る値（引数）。<code>return</code> で結果を返します。</p>' },
+    { t: 'choice', q: '関数を作るときに書くことばは？', opts: ['function', 'func', 'def', 'make'], a: 0, mono: true },
+    { t: 'choice', q: '表示されるのは？', code: 'function greet() {\n  console.log("やあ");\n}\ngreet();\ngreet();', opts: ['やあ\nやあ', 'やあ', '何も出ない', 'greet'], a: 0, ex: '呼び出した回数だけ実行されます。' },
+    { t: 'input', q: '表示されるのは？', code: 'function add(a, b) {\n  return a + b;\n}\nconsole.log(add(2, 3));', a: ['5'], ph: '表示される値' },
+    { t: 'order', q: '関数 square の1行目を作ろう', tokens: ['function', 'square', '(', 'x', ')', '{'], extra: ['return', '='] }
+  ]},
+  { id: 'u7l2', title: '総まとめ', items: [
+    { t: 'tip', title: 'ここまでの全部を使おう', body: '<p>2進数、論理、変数、条件、くりかえし、関数。JavaScript では <code>0b</code> をつけると2進数をそのまま書けます。</p>' },
+    { t: 'choice', q: '表示されるのは？', code: 'console.log(0b101);', opts: ['5', '101', '0b101', 'エラー'], a: 0, mono: true, ex: '0b101 = 4 + 1 = 5' },
+    { t: 'input', q: '表示されるのは？', code: 'let n = 6;\nconsole.log(n.toString(2));', a: ['110', '"110"'], ph: '表示される値', ex: 'toString(2) で2進数の文字列に変換。6 = 4 + 2 → 110' },
+    { t: 'choice', q: '表示されるのは？', code: 'for (let i = 1; i <= 5; i++) {\n  if (i % 2 === 0) {\n    console.log(i);\n  }\n}', opts: ['2\n4', '1\n3\n5', '1\n2\n3\n4\n5', '0\n2\n4'], a: 0, mono: true },
+    { t: 'choice', q: '表示されるのは？', code: 'function check(n) {\n  if (n % 2 === 0) {\n    return "偶数";\n  } else {\n    return "奇数";\n  }\n}\nconsole.log(check(7));', opts: ['奇数', '偶数', '7', 'undefined'], a: 0 }
+  ]}
+]}
+];
+const LESSONS = UNITS.flatMap((u, ui) => u.lessons.map((l, li) => ({ ...l, ui, li, unit: u })));
+
+const BADGES = [
+  { id: 'first', title: 'はじめの一歩', desc: 'レッスンを1つクリア', mark: '01' },
+  { id: 'perfect', title: 'ノーミス', desc: 'ミスなしでクリア', mark: '100' },
+  { id: 'streak3', title: '3日連続', desc: '3日続けて学習', mark: '3d' },
+  { id: 'unit1', title: '2進数マスター', desc: 'Unit 1 をクリア', mark: '0b1' },
+  { id: 'review', title: '苦手こくふく', desc: '復習で5問正解', mark: 'RE' },
+  { id: 'ta15', title: '高速変換', desc: 'タイムアタックで15問', mark: '15' },
+  { id: 'net', title: 'ネットワーク入門', desc: 'IPアドレスのユニットをクリア', mark: 'IP' },
+  { id: 'coder', title: 'はじめての実行', desc: 'プレイグラウンドで実行', mark: '>_' },
+  { id: 'all', title: '全制覇', desc: '全レッスンをクリア', mark: 'ALL' }
+];
+
+/* =========================================================
+   state
+   ========================================================= */
+const KEY = 'bitstep.v1';
+const DEFAULT = { done: {}, xp: 0, streak: 0, lastDay: null, day: null, dayXp: 0, goal: 30, sound: true, review: [], badges: {}, reviewWins: 0, taBest: 0 };
+let S = DEFAULT;
+try { S = Object.assign({}, DEFAULT, JSON.parse(localStorage.getItem(KEY)) || {}); } catch (e) { S = { ...DEFAULT }; }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function liveStreak() { return (S.lastDay === todayStr() || S.lastDay === yesterdayStr()) ? S.streak : 0; }
+function todayXp() { return S.day === todayStr() ? S.dayXp : 0; }
+function addXp(n) {
+  const t = todayStr();
+  if (S.day !== t) { S.day = t; S.dayXp = 0; }
+  S.dayXp += n; S.xp += n;
+  if (S.lastDay !== t) { S.streak = S.lastDay === yesterdayStr() ? S.streak + 1 : 1; S.lastDay = t; }
+  if (S.streak >= 3) award('streak3');
+  save();
+}
+function award(id) {
+  if (S.badges[id]) return;
+  S.badges[id] = todayStr(); save();
+  const b = BADGES.find(x => x.id === id);
+  if (b) toast(`バッジ獲得：${b.title}`);
+}
+function qKey(q) { return (q.q || '') + '|' + (q.code || '') + '|' + (q.big || '') + '|' + (q.target ?? ''); }
+function inReview(q) { const k = qKey(q); return S.review.some(r => r.k === k); }
+function addReview(q, why) { const k = qKey(q); if (inReview(q)) return; S.review.unshift({ k, q, why }); S.review = S.review.slice(0, 60); save(); }
+function removeReview(q) { const k = qKey(q); S.review = S.review.filter(r => r.k !== k); save(); }
+
+/* =========================================================
+   sound + toast
+   ========================================================= */
+let ac;
+function beep(kind) {
+  if (!S.sound) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const notes = kind === 'ok' ? [660, 990] : kind === 'win' ? [523, 659, 784, 1046] : [220, 165];
+    notes.forEach((f, i) => {
+      const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + i * 0.09;
+      o.type = kind === 'bad' ? 'square' : 'triangle'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.12, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+      o.connect(g).connect(ac.destination); o.start(t); o.stop(t + 0.2);
+    });
+  } catch (e) {}
+}
+function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2400); }
+
+/* =========================================================
+   home
+   ========================================================= */
+const app = $('#app');
+const OFFS = [0, 46, 72, 46, 0, -46, -72, -46];
+const ROW = 108;
+let onKey = null;
+document.addEventListener('keydown', e => { if (onKey) onKey(e); });
+
+function renderHome() {
+  onKey = null; closeSheet(); stopTA();
+  const firstOpen = LESSONS.findIndex(l => !S.done[l.id]);
+  const st = liveStreak(), tx = todayXp(), doneCount = Object.keys(S.done).filter(k => LESSONS.some(l => l.id === k)).length;
+  let gi = 0;
+  const units = UNITS.map((u, ui) => {
+    const n = u.lessons.length, H = n * ROW + 10;
+    const pts = u.lessons.map((_, k) => ({ x: 150 + OFFS[(gi + k) % 8], y: k * ROW + 30 + 34 }));
+    let segs = '';
+    for (let k = 0; k < n - 1; k++) {
+      const a = pts[k], b = pts[k + 1], mid = (a.y + b.y) / 2;
+      const lit = S.done[u.lessons[k].id];
+      const col = lit ? u.color : 'var(--trace)';
+      segs += `<path d="M${a.x} ${a.y} V${mid} H${b.x} V${b.y}" stroke="${col}" stroke-width="6" fill="none" stroke-linejoin="round" ${lit ? '' : 'stroke-dasharray="2 10" stroke-linecap="round"'}/>`;
+      if (a.x !== b.x) segs += `<circle cx="${a.x}" cy="${mid}" r="6" fill="var(--bg)" stroke="${col}" stroke-width="4"/><circle cx="${b.x}" cy="${mid}" r="6" fill="var(--bg)" stroke="${col}" stroke-width="4"/>`;
+    }
+    const nodes = u.lessons.map((l, k) => {
+      const idx = gi + k, off = OFFS[idx % 8];
+      const state = S.done[l.id] ? 'done' : idx === firstOpen ? 'current' : 'locked';
+      const icon = state === 'done' ? I.check : state === 'current' ? I.play : I.lock;
+      const side = off > 0 ? 'l' : 'r';
+      const count = l.items.filter(it => typeof it === 'function' || it.t !== 'tip').length;
+      return `<button class="node ${state}" data-lesson="${l.id}" style="left:calc(50% + ${off}px - 36px);top:${k * ROW + 30}px" aria-label="${esc(l.title)}（${state === 'done' ? 'クリア済み' : state === 'current' ? '次のレッスン' : 'ロック中'}）">${icon}${state === 'current' ? '<span class="bubble">はじめる</span>' : ''}</button>
+        <div class="nlabel ${side}" style="${side === 'r' ? `left:calc(50% + ${off}px + 52px)` : `right:calc(50% - ${off}px + 52px)`};top:${k * ROW + 40}px"><small>LESSON ${ui + 1}-${k + 1} · ${count}問</small>${esc(l.title)}</div>`;
+    }).join('');
+    gi += n;
+    return `<section class="unit" style="--uc:${u.color}">
+      <div class="band" data-bits="${bin(ui + 1, 4)}"><p class="eyebrow">UNIT ${ui + 1} · 0b${bin(ui + 1, 4)}</p><h2>${esc(u.title)}</h2><p>${esc(u.desc)}</p></div>
+      <div class="path" style="height:${H}px"><svg class="trace" width="300" height="${H}" viewBox="0 0 300 ${H}">${segs}</svg>${nodes}</div>
+    </section>`;
+  }).join('');
+
+  app.innerHTML = `
+  <header class="top"><div class="wrap">
+    <div class="brand">${mascot(30)}<span>ビットステップ</span></div>
+    <div class="stats">
+      <button class="stat ${st ? '' : 'off'}" data-act="profile" style="color:${st ? 'var(--accent)' : ''}" aria-label="連続日数 ${st}日">${I.flame}<span>${st}</span></button>
+      <button class="stat" data-act="profile" style="color:var(--led)" aria-label="合計XP ${S.xp}">${I.bolt}<span style="color:var(--ink)">${S.xp}</span></button>
+      <button class="iconbtn" data-act="sound" aria-label="効果音 ${S.sound ? 'オン' : 'オフ'}">${S.sound ? I.sound : I.mute}</button>
+    </div>
+  </div></header>
+  <main class="wrap">
+    <div class="goal">
+      ${mascot(54, 'happy')}
+      <div><h3>今日の目標 ${Math.min(tx, S.goal)} / ${S.goal} XP</h3>
+        <div class="meter"><i style="width:${Math.min(100, tx / S.goal * 100)}%"></i></div>
+        <p>${tx >= S.goal ? '今日の目標クリア！ この調子。' : `あと ${S.goal - tx} XP。1レッスン 3〜5分です。`}　全 ${LESSONS.length} レッスン中 ${doneCount} クリア</p></div>
+    </div>
+    <div class="tools">
+      <button class="tool" data-act="review" style="color:var(--u4)">${S.review.length ? `<span class="badge">${S.review.length}</span>` : ''}${I.review}<span style="color:var(--ink)">苦手復習</span></button>
+      <button class="tool" data-act="ta" style="color:var(--accent)">${I.timer}<span style="color:var(--ink)">タイムアタック</span></button>
+      <button class="tool" data-act="pg" style="color:var(--u5)">${I.term}<span style="color:var(--ink)">コードを試す</span></button>
+    </div>
+    ${units}
+    <p class="foot-note">進み具合はこのブラウザに保存されます。</p>
+  </main>`;
+
+  app.querySelectorAll('.node').forEach(b => b.onclick = () => openLessonSheet(b.dataset.lesson));
+  app.querySelectorAll('[data-act]').forEach(b => b.onclick = () => {
+    const a = b.dataset.act;
+    if (a === 'sound') { S.sound = !S.sound; save(); renderHome(); }
+    if (a === 'profile') openProfile();
+    if (a === 'review') startReview();
+    if (a === 'ta') renderTA();
+    if (a === 'pg') renderPG();
+  });
+}
+
+function sheet(html) {
+  closeSheet();
+  const s = document.createElement('div'); s.className = 'scrim'; s.id = 'scrim';
+  s.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+  s.onclick = e => { if (e.target === s) closeSheet(); };
+  document.body.appendChild(s);
+  return s;
+}
+function closeSheet() { const s = $('#scrim'); if (s) s.remove(); }
+
+function openLessonSheet(id) {
+  const l = LESSONS.find(x => x.id === id), idx = LESSONS.indexOf(l);
+  const firstOpen = LESSONS.findIndex(x => !S.done[x.id]);
+  const locked = !S.done[id] && idx !== firstOpen;
+  const s = sheet(`<p class="eyebrow" style="color:${l.unit.color}">UNIT ${l.ui + 1} · ${esc(l.unit.title)}</p>
+    <h3>${esc(l.title)}</h3>
+    <p class="meta">${locked ? '前のレッスンをクリアすると開きます。' : S.done[id] ? 'クリア済み。何度でもやり直せます。' : 'ハート 5 つでスタート。まちがえた問題は最後にもう一度出ます。'}</p>
+    <div class="row">${locked ? '<button class="btn ghost" data-x>とじる</button>' : `<button class="btn ghost" data-x>とじる</button><button class="btn" data-go>${S.done[id] ? 'もう一度やる' : 'スタート'}</button>`}</div>`);
+  s.querySelector('[data-x]').onclick = closeSheet;
+  const go = s.querySelector('[data-go]'); if (go) { go.onclick = () => startLesson(id); go.focus(); }
+}
+
+function openProfile() {
+  const st = liveStreak();
+  const s = sheet(`<h3>きろく</h3>
+    <div class="kv" style="margin-top:14px"><div><b>${st}</b><span>連続日数</span></div><div><b>${S.xp}</b><span>合計 XP</span></div><div><b>${S.taBest}</b><span>タイムアタック最高</span></div></div>
+    <div class="badges">${BADGES.map(b => `<div class="bdg ${S.badges[b.id] ? 'got' : ''}"><div class="chip">${b.mark}</div><b>${b.title}</b>${b.desc}</div>`).join('')}</div>
+    <p class="meta">1日の目標</p>
+    <div class="row" style="margin-bottom:16px">${[20, 30, 50].map(g => `<button class="btn ${S.goal === g ? '' : 'ghost'}" data-goal="${g}">${g} XP</button>`).join('')}</div>
+    <button class="btn ghost" data-x>とじる</button>`);
+  s.querySelector('[data-x]').onclick = closeSheet;
+  s.querySelectorAll('[data-goal]').forEach(b => b.onclick = () => { S.goal = +b.dataset.goal; save(); renderHome(); openProfile(); });
+}
+
+/* =========================================================
+   lesson engine
+   ========================================================= */
+let L = null; // running lesson
+
+function startLesson(id) {
+  const l = LESSONS.find(x => x.id === id);
+  const ctx = { used: new Set() };
+  const items = l.items.map(it => typeof it === 'function' ? it(ctx) : it);
+  runSession({ mode: 'lesson', lesson: l, items, color: l.unit.color });
+}
+function startReview() {
+  if (!S.review.length) {
+    const s = sheet(`<div style="display:flex;gap:14px;align-items:center">${mascot(64)}<div><h3>復習する問題はまだありません</h3><p class="meta">まちがえた問題と、「あとで復習」を押した問題がここにたまります。</p></div></div><button class="btn" data-x>OK</button>`);
+    s.querySelector('[data-x]').onclick = closeSheet; return;
+  }
+  const items = shuffle(S.review).slice(0, 5).map(r => r.q);
+  runSession({ mode: 'review', items, color: 'var(--u4)' });
+}
+
+function runSession(cfg) {
+  closeSheet();
+  L = { ...cfg, queue: cfg.items.slice(), total: cfg.items.length, done: 0, hearts: cfg.mode === 'review' ? Infinity : 5, mistakes: 0, graded: 0, correct: 0, phase: 'answer', cur: null };
+  nextItem();
+}
+
+function lessonShell(inner) {
+  const pct = Math.round(L.done / L.total * 100);
+  app.innerHTML = `<div class="lesson"><div class="wrap" style="width:100%;box-sizing:border-box;flex:1;display:flex;flex-direction:column">
+    <div class="ltop">
+      <button class="iconbtn" data-quit aria-label="やめる">${I.x}</button>
+      <div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
+      <div class="hearts" aria-label="ハート">${I.heart}<span>${L.hearts === Infinity ? '∞' : L.hearts}</span></div>
+    </div>
+    <div class="qarea">${inner}</div>
+  </div></div>
+  <div class="foot" id="foot"><div class="wrap" id="footin"></div></div>`;
+  $('[data-quit]').onclick = confirmQuit;
+}
+function confirmQuit() {
+  const s = sheet(`<div style="display:flex;gap:14px;align-items:center">${mascot(64, 'sad')}<div><h3>ほんとうにやめる？</h3><p class="meta">このレッスンの進み具合は保存されません。</p></div></div>
+    <div class="row"><button class="btn ghost" data-q>やめる</button><button class="btn" data-x>つづける</button></div>`);
+  s.querySelector('[data-x]').onclick = closeSheet;
+  s.querySelector('[data-q]').onclick = renderHome;
+}
+
+function nextItem() {
+  if (!L.queue.length) return finishSession();
+  const q = L.queue[0];
+  L.phase = 'answer';
+  if (q.t === 'tip') return renderTip(q);
+  renderQuestion(q);
+}
+
+function renderTip(q) {
+  lessonShell(`<p class="qkind">ヒント</p><div class="tip">${mascot(76, 'happy', true)}<div class="say"><h3>${esc(q.title)}</h3>${q.body}</div></div>`);
+  $('#footin').innerHTML = `<button class="btn" id="primary">つづける</button>`;
+  const go = () => { L.queue.shift(); L.done++; nextItem(); };
+  $('#primary').onclick = go; $('#primary').focus();
+  onKey = e => { if (e.key === 'Enter' && !$('#scrim')) { e.preventDefault(); go(); } };
+}
+
+const KIND = { choice: 'えらぶ', input: 'こたえを書く', bits: 'ランプを切りかえる', order: 'ならべる' };
+
+function renderQuestion(q) {
+  const head = `<p class="qkind"><span>${KIND[q.t]}</span><button class="bm ${inReview(q) ? 'on' : ''}" id="bm" title="「分かったつもり」の問題を復習リストに入れる">${inReview(q) ? '復習リストに追加済み' : 'あとで復習'}</button></p>
+    <h2 class="qtext">${esc(q.q)}</h2>${q.code ? codeBlock(q.code) : ''}${q.big ? `<div class="big">${q.big}</div>` : ''}`;
+  let body = '', cur = {};
+  if (q.t === 'choice') {
+    const order = shuffle(q.opts.map((_, i) => i));
+    body = `<div class="opts ${q.two ? 'two' : ''}">${order.map((oi, k) => `<button class="opt ${q.mono ? 'mono' : ''}" data-oi="${oi}"><span class="k">${k + 1}</span><span class="t">${esc(q.opts[oi])}</span></button>`).join('')}</div>`;
+    cur = { sel: null, order };
+  } else if (q.t === 'input') {
+    body = `<input class="field" id="ans" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="${/^\d+$/.test(q.a[0]) ? 'numeric' : 'text'}" placeholder="${esc(q.ph || 'こたえ')}">`;
+  } else if (q.t === 'bits') {
+    cur = { bits: Array(q.n).fill(0) };
+    body = `<div class="bits" style="--n:${q.n}">${cur.bits.map((_, i) => `<button class="bit" data-i="${i}" aria-pressed="false" aria-label="重み ${2 ** (q.n - 1 - i)}"><span class="w">${2 ** (q.n - 1 - i)}</span><span class="lamp">${I.bulb}</span><span class="v">0</span></button>`).join('')}</div><div class="bitsum" id="bitsum"></div>`;
+  } else if (q.t === 'order') {
+    const bank = shuffle([...q.tokens, ...(q.extra || [])]);
+    cur = { bank, picked: [] };
+    body = `<div class="slot" id="slot" aria-label="こたえ"></div><div class="bank" id="bank">${bank.map((t, i) => `<button class="tok" data-bi="${i}">${esc(t)}</button>`).join('')}</div>`;
+  }
+  lessonShell(head + body);
+  L.cur = cur;
+  $('#footin').innerHTML = `<button class="btn" id="primary" disabled>チェック</button>`;
+  const primary = $('#primary');
+  const setReady = r => { primary.disabled = !r; };
+  $('#bm').onclick = e => {
+    if (inReview(q)) removeReview(q); else addReview(q, 'bookmark');
+    e.currentTarget.classList.toggle('on', inReview(q));
+    e.currentTarget.textContent = inReview(q) ? '復習リストに追加済み' : 'あとで復習';
+  };
+
+  if (q.t === 'choice') {
+    app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+      if (L.phase !== 'answer') return;
+      app.querySelectorAll('.opt').forEach(x => x.classList.remove('sel'));
+      b.classList.add('sel'); cur.sel = +b.dataset.oi; setReady(true);
+    });
+  } else if (q.t === 'input') {
+    const f = $('#ans'); f.oninput = () => setReady(f.value.trim().length > 0); setTimeout(() => f.focus(), 30);
+  } else if (q.t === 'bits') {
+    const upd = () => {
+      const v = cur.bits.reduce((a, b, i) => a + b * 2 ** (q.n - 1 - i), 0);
+      $('#bitsum').innerHTML = q.showSum ? `2進数 <b>${cur.bits.join('')}</b>　＝　10進数 <b>${v}</b>` : `2進数 <b>${cur.bits.join('')}</b>`;
+      setReady(cur.bits.some(b => b));
+    };
+    app.querySelectorAll('.bit').forEach(b => b.onclick = () => {
+      if (L.phase !== 'answer') return;
+      const i = +b.dataset.i; cur.bits[i] ^= 1;
+      b.classList.toggle('on', !!cur.bits[i]); b.setAttribute('aria-pressed', !!cur.bits[i]); b.querySelector('.v').textContent = cur.bits[i];
+      upd();
+    });
+    upd(); primary.disabled = true;
+  } else if (q.t === 'order') {
+    const draw = () => {
+      $('#slot').innerHTML = cur.picked.map((bi, k) => `<button class="tok" data-pk="${k}">${esc(cur.bank[bi])}</button>`).join('');
+      app.querySelectorAll('#bank .tok').forEach(b => b.classList.toggle('used', cur.picked.includes(+b.dataset.bi)));
+      app.querySelectorAll('#slot .tok').forEach(b => b.onclick = () => { if (L.phase !== 'answer') return; cur.picked.splice(+b.dataset.pk, 1); draw(); });
+      setReady(cur.picked.length > 0);
+    };
+    app.querySelectorAll('#bank .tok').forEach(b => b.onclick = () => { if (L.phase !== 'answer') return; const bi = +b.dataset.bi; if (!cur.picked.includes(bi)) { cur.picked.push(bi); draw(); } });
+    draw();
+  }
+  primary.onclick = () => check(q);
+  onKey = e => {
+    if ($('#scrim')) return;
+    if (e.key === 'Enter') { e.preventDefault(); const p = $('#primary'); if (p && !p.disabled) p.click(); }
+    else if (L.phase === 'answer' && q.t === 'choice' && /^[1-9]$/.test(e.key)) { const b = app.querySelectorAll('.opt')[+e.key - 1]; if (b) b.click(); }
+  };
+}
+
+const norm = s => String(s).replace(/[０-９ａ-ｚＡ-Ｚ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/[\s　]/g, '').toLowerCase();
+
+function evaluate(q) {
+  const cur = L.cur;
+  if (q.t === 'choice') return { ok: cur.sel === q.a, ans: q.opts[q.a] };
+  if (q.t === 'input') { const v = norm($('#ans').value); return { ok: q.a.some(a => norm(a) === v), ans: q.a[0] }; }
+  if (q.t === 'bits') { const v = cur.bits.reduce((a, b, i) => a + b * 2 ** (q.n - 1 - i), 0); return { ok: v === q.target, ans: `${bin(q.target, q.n)}（${sumExplain(bin(q.target, q.n))}）` }; }
+  if (q.t === 'order') { const got = cur.picked.map(bi => cur.bank[bi]).join('\u0001'); const ok = [q.tokens, ...(q.alts || [])].some(t => t.join('\u0001') === got); return { ok, ans: q.tokens.join(' ') }; }
+}
+
+const PRAISE = ['正解！', 'すごい！', 'いいね！', 'その調子！', 'パーフェクト！'];
+function check(q) {
+  if (L.phase !== 'answer') return;
+  L.phase = 'feedback';
+  const r = evaluate(q);
+  L.graded++;
+  if (q.t === 'input') $('#ans').disabled = true;
+  if (r.ok) {
+    L.correct++; beep('ok');
+    if (L.mode === 'review') { removeReview(q); S.reviewWins++; save(); if (S.reviewWins >= 5) award('review'); }
+  } else {
+    L.mistakes++; beep('bad');
+    if (L.hearts !== Infinity) L.hearts--;
+    $('.hearts span').textContent = L.hearts === Infinity ? '∞' : L.hearts;
+    addReview(q, 'miss');
+  }
+  const foot = $('#foot'); foot.classList.add(r.ok ? 'ok' : 'bad');
+  const exHtml = q.ex ? `<p>${q.ex}</p>` : '';
+  $('#footin').innerHTML = `<div class="fb"><div class="ic">${r.ok ? I.check : I.cross}</div><div>
+      <h4>${r.ok ? PRAISE[R(0, PRAISE.length - 1)] : 'おしい…'}</h4>
+      ${r.ok ? exHtml : `<p>正解：<span class="ans">${esc(r.ans)}</span></p>${exHtml}${L.mode === 'lesson' ? '<p style="color:var(--muted)">この問題はあとでもう一度出ます。</p>' : ''}`}
+    </div></div>
+    <div class="row">${q.code ? '<button class="btn ghost try" id="try">実行して確かめる</button>' : ''}<button class="btn ${r.ok ? 'okb' : 'badb'}" id="primary">つづける</button></div>`;
+  $('#primary').focus();
+  if (q.code) $('#try').onclick = () => { const back = { L, q }; renderPG(q.code, back); };
+  $('#primary').onclick = () => {
+    L.queue.shift();
+    if (r.ok) L.done++;
+    else if (L.mode === 'lesson') L.queue.push(q);
+    else L.done++;
+    if (L.hearts <= 0) return failSession();
+    nextItem();
+  };
+}
+
+function failSession() {
+  onKey = null; beep('bad');
+  app.innerHTML = `<div class="wrap center">${mascot(120, 'sad')}<h1 style="color:var(--bad)">ハートがなくなった</h1>
+    <p>まちがえた問題は「苦手復習」に入りました。<br>ヒントを読み直して、もう一度ためしてみよう。</p>
+    <div style="width:100%;max-width:420px;display:grid;gap:12px;margin-top:12px"><button class="btn" id="retry">もう一度</button><button class="btn ghost" id="home">ホームへ</button></div></div>`;
+  $('#retry').onclick = () => startLesson(L.lesson.id);
+  $('#home').onclick = renderHome;
+}
+
+function finishSession() {
+  onKey = null;
+  const acc = L.graded ? Math.round(L.correct / L.graded * 100) : 100;
+  let xp;
+  if (L.mode === 'lesson') {
+    const first = !S.done[L.lesson.id];
+    xp = (first ? 10 : 5) + (L.mistakes === 0 ? 5 : 0);
+    S.done[L.lesson.id] = Math.max(S.done[L.lesson.id] || 0, acc);
+    award('first');
+    if (L.mistakes === 0) award('perfect');
+    if (UNITS[0].lessons.every(l => S.done[l.id])) award('unit1');
+    if (UNITS.find(u => u.id === 'net').lessons.every(l => S.done[l.id])) award('net');
+    if (LESSONS.every(l => S.done[l.id])) award('all');
+  } else xp = L.correct * 2;
+  addXp(xp);
+  beep('win');
+  const title = L.mode === 'review' ? '復習おわり！' : L.mistakes === 0 ? 'ノーミスクリア！' : 'レッスンクリア！';
+  app.innerHTML = `<div class="wrap center">${mascot(130, 'happy', true)}<h1>${title}</h1>
+    <p>${L.mode === 'review' ? `正解した問題は苦手リストから消えました。のこり ${S.review.length} 問。` : esc(L.lesson.title) + ' をクリアしました。'}</p>
+    <div class="tiles">
+      <div class="tile" style="--tc:var(--led)"><span>獲得 XP</span><b>+${xp}</b></div>
+      <div class="tile" style="--tc:var(--ok)"><span>正答率</span><b>${acc}%</b></div>
+      <div class="tile" style="--tc:var(--accent)"><span>連続日数</span><b>${liveStreak()}日</b></div>
+    </div>
+    <div style="width:100%;max-width:420px;margin-top:16px"><button class="btn" id="home">つづける</button></div></div>`;
+  $('#home').onclick = renderHome; $('#home').focus();
+  onKey = e => { if (e.key === 'Enter') { e.preventDefault(); renderHome(); } };
+}
+
+/* =========================================================
+   time attack: binary -> decimal, 60 seconds
+   ========================================================= */
+let TA = null;
+function stopTA() { if (TA && TA.timer) clearInterval(TA.timer); TA = null; }
+function renderTA() {
+  stopTA(); closeSheet();
+  app.innerHTML = `<div class="wrap center">${mascot(110, 'happy', true)}<h1>タイムアタック</h1>
+    <p>60秒で、2進数を10進数に何問直せるかな？<br>5問ごとにけたが増えます。最高記録：<b style="color:var(--ink)">${S.taBest}問</b></p>
+    <div style="width:100%;max-width:420px;display:grid;gap:12px;margin-top:12px"><button class="btn" id="go">スタート</button><button class="btn ghost" id="home">ホームへ</button></div></div>`;
+  $('#go').onclick = playTA; $('#home').onclick = renderHome; $('#go').focus();
+  onKey = null;
+}
+function playTA() {
+  TA = { left: 60, score: 0, miss: 0, n: 0 };
+  app.innerHTML = `<div class="wrap" style="padding-block:16px 40px">
+    <div class="ltop"><button class="iconbtn" id="quit" aria-label="やめる">${I.x}</button><div class="bar"><i id="tbar" style="width:100%;background:var(--accent)"></i></div><span class="ta-timer" id="tleft">60</span></div>
+    <p class="qkind"><span>10進数に直そう</span><span id="tscore">0問</span></p>
+    <div class="big" id="tq"></div>
+    <input class="field" id="tans" inputmode="numeric" autocomplete="off" placeholder="答えを入れて Enter">
+    <p style="color:var(--muted);font-size:13px;text-align:center;margin-top:10px">Enter で答え合わせ。まちがえても次へ進みます。</p>
+    <div style="margin-top:8px"><button class="btn" id="tsend">答える</button></div>
+  </div>`;
+  const newQ = () => { const w = TA.score < 5 ? 4 : TA.score < 10 ? 5 : TA.score < 15 ? 6 : 8; TA.n = R(1, 2 ** w - 1); $('#tq').textContent = bin(TA.n, w); $('#tans').value = ''; $('#tans').focus(); };
+  const send = () => {
+    const f = $('#tans'); if (!f.value.trim()) return;
+    const ok = norm(f.value) === String(TA.n);
+    const el = $('#tq'); el.classList.remove('flash-ok', 'flash-bad'); void el.offsetWidth; el.classList.add(ok ? 'flash-ok' : 'flash-bad');
+    if (ok) { TA.score++; beep('ok'); } else { TA.miss++; beep('bad'); }
+    $('#tscore').textContent = TA.score + '問'; newQ();
+  };
+  $('#tsend').onclick = send; $('#quit').onclick = renderHome;
+  onKey = e => { if (e.key === 'Enter') { e.preventDefault(); send(); } };
+  newQ();
+  TA.timer = setInterval(() => {
+    TA.left--; $('#tleft').textContent = TA.left; $('#tbar').style.width = (TA.left / 60 * 100) + '%';
+    if (TA.left <= 0) endTA();
+  }, 1000);
+}
+function endTA() {
+  const { score, miss } = TA; stopTA(); onKey = null;
+  const best = score > S.taBest; if (best) S.taBest = score;
+  if (score >= 15) award('ta15');
+  const xp = Math.max(1, Math.floor(score / 2)); addXp(xp); beep('win');
+  app.innerHTML = `<div class="wrap center">${mascot(120, 'happy', true)}<h1>${best ? '新記録！' : 'タイムアップ'}</h1>
+    <div class="tiles"><div class="tile" style="--tc:var(--ok)"><span>正解</span><b>${score}</b></div><div class="tile" style="--tc:var(--bad)"><span>ミス</span><b>${miss}</b></div><div class="tile" style="--tc:var(--led)"><span>獲得 XP</span><b>+${xp}</b></div></div>
+    <div style="width:100%;max-width:420px;display:grid;gap:12px;margin-top:16px"><button class="btn" id="again">もう一回</button><button class="btn ghost" id="home">ホームへ</button></div></div>`;
+  $('#again').onclick = playTA; $('#home').onclick = renderHome;
+}
+
+/* =========================================================
+   playground: run JavaScript in a worker with a timeout
+   ========================================================= */
+const SAMPLES = {
+  '2進数に変換': 'let n = 13;\nconsole.log(n + " を2進数にすると " + n.toString(2));\n\n// n の数を変えて実行してみよう',
+  '重みの表': 'let w = 1;\nfor (let i = 0; i < 8; i++) {\n  console.log("右から" + (i + 1) + "番目の重み: " + w);\n  w = w * 2;\n}',
+  '条件分岐': 'let score = 72;\nif (score >= 80) {\n  console.log("A");\n} else if (score >= 60) {\n  console.log("B");\n} else {\n  console.log("C");\n}',
+  'IPを2進数に': 'let ip = "192.168.1.10";\nlet bits = ip.split(".").map(n => Number(n).toString(2).padStart(8, "0"));\nconsole.log(bits.join("."));\n\n// サブネットマスク /26 と AND してみる\nlet last = 150;\nconsole.log("ネットワーク: " + (last & 0b11000000));',
+  '関数': 'function toBinary(n) {\n  let s = "";\n  while (n > 0) {\n    s = (n % 2) + s;\n    n = Math.floor(n / 2);\n  }\n  return s;\n}\nconsole.log(toBinary(10));'
+};
+const WORKER_SRC = `const fmt=v=>typeof v==='string'?v:(v===undefined?'undefined':(typeof v==='object'?JSON.stringify(v):String(v)));
+onmessage=e=>{const out=[];const c={log:(...a)=>out.push(['log',a.map(fmt).join(' ')]),error:(...a)=>out.push(['err',a.map(fmt).join(' ')])};
+try{new Function('console',e.data)(c)}catch(err){out.push(['err',err.name+': '+err.message])}postMessage(out)}`;
+function runJS(src) {
+  return new Promise(resolve => {
+    let w;
+    try { w = new Worker(URL.createObjectURL(new Blob([WORKER_SRC], { type: 'text/javascript' }))); }
+    catch (e) { return resolve(runInline(src)); }
+    const t = setTimeout(() => { w.terminate(); resolve([['err', '2秒たっても終わりませんでした。無限ループになっていないか確認しよう。']]); }, 2000);
+    w.onmessage = e => { clearTimeout(t); w.terminate(); resolve(e.data); };
+    w.onerror = e => { clearTimeout(t); w.terminate(); e.preventDefault(); resolve([['err', e.message || '実行できませんでした']]); };
+    w.postMessage(src);
+  });
+}
+function runInline(src) {
+  const out = [], fmt = v => typeof v === 'string' ? v : v === undefined ? 'undefined' : typeof v === 'object' ? JSON.stringify(v) : String(v);
+  try { new Function('console', src)({ log: (...a) => out.push(['log', a.map(fmt).join(' ')]), error: (...a) => out.push(['err', a.map(fmt).join(' ')]) }); }
+  catch (e) { out.push(['err', e.name + ': ' + e.message]); }
+  return out;
+}
+function renderPG(code, back) {
+  stopTA(); closeSheet(); onKey = null;
+  app.innerHTML = `<div class="wrap pg" style="padding-block:16px 60px">
+    <div class="ltop"><button class="iconbtn" id="back" aria-label="もどる">${I.x}</button><h1>コードを試す</h1></div>
+    <p class="lead">${back ? '問題のコードです。数字を書きかえて、結果がどう変わるか試してみよう。' : 'JavaScript を書いて実行できます。console.log() で表示。'}</p>
+    ${back ? '' : `<div class="samples">${Object.keys(SAMPLES).map(k => `<button data-s="${esc(k)}">${esc(k)}</button>`).join('')}</div>`}
+    <label for="pg-code" class="qkind" style="display:block">コード</label>
+    <textarea id="pg-code" spellcheck="false">${esc(code || SAMPLES['2進数に変換'])}</textarea>
+    <div class="row" style="margin-top:12px"><button class="btn" id="run">▶ 実行（Ctrl + Enter）</button></div>
+    <div class="out" id="out" aria-live="polite"><span class="dim">ここに結果が出ます</span></div>
+    ${back ? '<div style="margin-top:16px"><button class="btn ghost" id="ret">問題にもどる</button></div>' : ''}
+  </div>`;
+  const ta = $('#pg-code');
+  const run = async () => {
+    $('#out').innerHTML = '<span class="dim">実行中…</span>';
+    const res = await runJS(ta.value);
+    award('coder');
+    $('#out').innerHTML = res.length ? res.map(([k, v]) => `<div class="${k === 'err' ? 'err' : ''}">${esc(v)}</div>`).join('') : '<span class="dim">（何も表示されませんでした）</span>';
+  };
+  $('#run').onclick = run;
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); }
+    if (e.key === 'Tab') { e.preventDefault(); const s = ta.selectionStart; ta.setRangeText('  ', s, ta.selectionEnd, 'end'); }
+  });
+  app.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { ta.value = SAMPLES[b.dataset.s]; $('#out').innerHTML = '<span class="dim">ここに結果が出ます</span>'; });
+  const ret = () => { if (back) { L = back.L; resumeAfterTry(back.q); } else renderHome(); };
+  $('#back').onclick = ret; if ($('#ret')) $('#ret').onclick = ret;
+}
+// after trying the code, return to the lesson at the "continue" step
+function resumeAfterTry(q) {
+  // the question was already graded; move on as if "つづける" was pressed with its result
+  L.queue.shift();
+  if (L.lastResult === false && L.mode === 'lesson') L.queue.push(q); else L.done++;
+  if (L.hearts <= 0) return failSession();
+  nextItem();
+}
+// remember result for resume
+const _check = check;
+check = function (q) { _check(q); L.lastResult = $('#foot').classList.contains('ok'); };
+
+renderHome();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
