@@ -75,7 +75,10 @@ h1,h2,h3{text-wrap:balance;margin:0}
 .goal p{margin:0;color:var(--muted);font-size:13px}
 .meter{height:10px;border-radius:99px;background:var(--sunk);overflow:hidden;margin-top:6px}
 .meter i{display:block;height:100%;background:var(--led);border-radius:99px;transition:width .5s}
-.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.tools{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+@media (max-width:520px){.tools{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:440px){.top [data-act="sound"]{display:none}.brand{font-size:17px;gap:6px}.stat{padding:6px 5px}}
+.tool .badge.free{background:var(--ok)}
 .tool{background:var(--surface);border:2px solid var(--line);border-bottom-width:4px;border-radius:var(--r);padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:800;font-size:13px;position:relative}
 .tool svg{width:28px;height:28px}
 .tool:active{transform:translateY(2px);border-bottom-width:2px}
@@ -204,7 +207,7 @@ pre.code{background:var(--sunk);border:2px solid var(--line);border-radius:12px;
 .center{text-align:center;padding-block:40px 120px;display:flex;flex-direction:column;align-items:center;gap:14px}
 .center h1{font-family:var(--f-display);font-weight:400;font-size:30px;color:var(--accent)}
 .center p{margin:0;color:var(--muted)}
-.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:420px;margin-top:8px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(76px,1fr));gap:10px;width:100%;max-width:440px;margin-top:8px}
 .tile{border:2px solid var(--tc);border-radius:var(--r);overflow:hidden}
 .tile span{display:block;background:var(--tc);color:#fff;font-size:12px;font-weight:800;padding:3px;letter-spacing:.06em}
 .tile b{display:block;font-size:24px;padding:10px 4px;font-variant-numeric:tabular-nums}
@@ -230,6 +233,44 @@ pre.code{background:var(--sunk);border:2px solid var(--line);border-radius:12px;
 .mascot{display:block}
 .mascot.bounce{animation:bob2 1.4s ease-in-out infinite}
 @keyframes bob2{50%{transform:translateY(-6px)}}
+/* gacha + collection */
+.coin{color:var(--led)}
+.gtop{display:flex;align-items:center;gap:10px;padding-block:14px}
+.gtop h1{font-family:var(--f-display);font-weight:400;font-size:24px;flex:1}
+.wallet{display:flex;align-items:center;gap:6px;font-weight:800;font-size:18px;font-variant-numeric:tabular-nums;background:var(--surface);border:2px solid var(--line);border-radius:99px;padding:4px 14px 4px 8px}
+.wallet svg{width:22px;height:22px}
+.machine{background:var(--surface);border:2px solid var(--line);border-bottom-width:5px;border-radius:20px;padding:18px;display:grid;gap:14px}
+.window{height:120px;border-radius:14px;background:var(--sunk);border:2px solid var(--line);position:relative;overflow:hidden}
+.window i{position:absolute;width:38px;height:38px;border-radius:50%;background:linear-gradient(var(--cc) 50%,var(--surface) 50%);border:2px solid color-mix(in srgb,var(--cc) 60%,#000)}
+.machine .note{margin:0;color:var(--muted);font-size:13px;text-align:center}
+.rates{display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center;font-size:12px;color:var(--muted)}
+.rates b{font-weight:800}
+.colhead{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 6px}
+.colhead h2{font-family:var(--f-display);font-weight:400;font-size:20px}
+.colhead span{color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin:12px 0 60px}
+.card{background:var(--surface);border:2px solid var(--line);border-bottom-width:4px;border-radius:14px;padding:10px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;font-size:12px;font-weight:800;line-height:1.3;text-align:center}
+.card svg{width:56px;height:56px}
+.card .st{font-size:10px;letter-spacing:.1em;color:var(--rc)}
+.card.own{border-color:color-mix(in srgb,var(--rc) 55%,var(--line))}
+.card.lock{color:var(--muted)}
+.card .cnt{position:absolute;top:4px;right:6px;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.card.r4.own{box-shadow:0 0 16px var(--led-glow)}
+.reveal{position:fixed;inset:0;z-index:40;background:rgba(10,14,24,.72);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));animation:fade .2s}
+.capsule{width:130px;height:130px;border-radius:50%;background:linear-gradient(var(--rc) 50%,#F3F6FA 50%);border:5px solid #18202E;animation:shake .9s ease-in-out}
+@keyframes shake{0%,100%{transform:rotate(0)}15%{transform:rotate(-14deg)}30%{transform:rotate(12deg)}45%{transform:rotate(-10deg)}60%{transform:rotate(8deg)}75%{transform:scale(1.12)}}
+.bigcard{background:var(--surface);border-radius:20px;border:4px solid var(--rc);padding:22px 24px;width:min(300px,100%);box-sizing:border-box;text-align:center;animation:pop .45s cubic-bezier(.2,1.4,.4,1)}
+.bigcard.r4{box-shadow:0 0 40px var(--led-glow)}
+@keyframes pop{from{transform:scale(.3);opacity:0}}
+.bigcard svg{width:128px;height:128px}
+.bigcard .st{color:var(--rc);font-weight:800;letter-spacing:.12em;font-size:13px}
+.bigcard h3{font-family:var(--f-display);font-weight:400;font-size:24px;margin:4px 0 6px}
+.bigcard p{margin:0;font-size:14px;color:var(--ink);text-align:left}
+.tag{display:inline-block;font-weight:800;font-size:13px;border-radius:99px;padding:2px 12px;margin-bottom:8px}
+.tag.new{background:var(--accent);color:#fff}.tag.dup{background:var(--sunk);color:var(--muted)}
+.reveal .row{width:min(300px,100%)}
+.bitsdata{font-family:var(--f-mono);font-size:13px;line-height:1.5;background:var(--sunk);border-radius:10px;padding:10px 12px;margin-top:12px;display:grid;grid-template-columns:auto auto;justify-content:center;gap:0 14px;text-align:left}
+.bitsdata span:nth-child(2n){color:var(--muted)}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 @media (max-width:420px){.tool{font-size:12px;white-space:nowrap;padding-inline:4px}.band::after{font-size:30px}.qtext{font-size:19px}.big{font-size:36px}.nlabel{width:104px;font-size:12px}}
 </style>
@@ -279,6 +320,8 @@ const I = {
   review: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h10l3 3v15H6z"/><path d="M9 10h7M9 14h7M9 18h4"/></svg>',
   timer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>',
   term: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 9l3 3-3 3M12 15h5"/></svg>',
+  coin: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><circle cx="12" cy="12" r="6.5" fill="none" stroke="#7A4E00" stroke-width="1.6" opacity=".55"/><text x="12" y="15.6" text-anchor="middle" font-family="JetBrains Mono,monospace" font-weight="700" font-size="9" fill="#5A3A00">1</text></svg>',
+  capsule: '<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 18 0z" fill="currentColor"/><path d="M3 12h18a9 9 0 0 1-18 0z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.6" fill="var(--surface)" stroke="currentColor" stroke-width="2"/></svg>',
   x: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   sound: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l5 4V6L8 10z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>',
   mute: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l5 4V6L8 10z"/><path d="M17 10l4 4M21 10l-4 4"/></svg>'
@@ -524,14 +567,55 @@ const BADGES = [
   { id: 'ta15', title: '高速変換', desc: 'タイムアタックで15問', mark: '15' },
   { id: 'net', title: 'ネットワーク入門', desc: 'IPアドレスのユニットをクリア', mark: 'IP' },
   { id: 'coder', title: 'はじめての実行', desc: 'プレイグラウンドで実行', mark: '>_' },
-  { id: 'all', title: '全制覇', desc: '全レッスンをクリア', mark: 'ALL' }
+  { id: 'all', title: '全制覇', desc: '全レッスンをクリア', mark: 'ALL' },
+  { id: 'col10', title: 'コレクター', desc: 'カードを10種類集める', mark: '10' },
+  { id: 'colall', title: '図鑑コンプリート', desc: 'カードを全種類集める', mark: '★' }
 ];
+
+/* =========================================================
+   collection cards — each picture is 8 rows of 8 bits
+   ========================================================= */
+const RARITY = {
+  1: { name: 'コモン', rate: 60, color: 'var(--u2)', stars: '★' },
+  2: { name: 'レア', rate: 28, color: 'var(--u5)', stars: '★★' },
+  3: { name: 'スーパーレア', rate: 10, color: 'var(--u3)', stars: '★★★' },
+  4: { name: 'レジェンド', rate: 2, color: 'var(--led)', stars: '★★★★' }
+};
+const CARDS = [
+  { id: 'switch', r: 1, name: 'スイッチ', fact: 'ON と OFF の2つだけ。これが1ビット。コンピュータはこの小さなスイッチの集まりです。', px: ['00000000','00000110','00001100','00011000','01111110','01111110','01000010','00000000'] },
+  { id: 'led', r: 1, name: 'ランプ', fact: '光っている = 1、消えている = 0。昔のコンピュータは、ランプの点滅で計算結果を見せていました。', px: ['00111100','01111110','01111110','01111110','00111100','00011000','00111100','00011000'] },
+  { id: 'bit', r: 1, name: 'ビット', fact: 'binary digit の略。0 か 1 を入れる、情報のいちばん小さな単位です。', px: ['00011000','00111000','01011000','00011000','00011000','00011000','01111110','00000000'] },
+  { id: 'byte', r: 1, name: 'バイト', fact: '8ビットで1バイト。0〜255 の256通りを表せます。英数字1文字はだいたい1バイト。', px: ['00000000','11111111','10101011','11111111','11010101','11111111','00000000','00000000'] },
+  { id: 'keyboard', r: 1, name: 'キーボード', fact: 'キーを押すと、その文字の番号（文字コード）がコンピュータに送られます。A なら 65。', px: ['00000000','00000000','11111111','10101011','11010101','10000001','11111111','00000000'] },
+  { id: 'mouse', r: 1, name: 'マウス', fact: '動いた向きと距離を数字にして送っています。1960年代に発明されました。', px: ['00011000','00111100','01011010','01111110','01111110','01111110','00111100','00000000'] },
+  { id: 'lan', r: 1, name: 'LANケーブル', fact: '中の細い線に電気の信号を流して、0 と 1 を送ります。1秒に10億ビット送れるものもあります。', px: ['00011000','00011000','00011000','01111110','01111110','01011010','01011010','01111110'] },
+  { id: 'floppy', r: 1, name: 'フロッピーディスク', fact: '容量は約1.44MB。今でも「保存」ボタンのアイコンとして残っています。', px: ['11111110','10011011','10011001','10000001','10111101','10100101','10111101','11111111'] },
+  { id: 'battery', r: 1, name: '電池', fact: '電気がなければ 0 も 1 も作れません。スマホは電池の電気でスイッチを動かしています。', px: ['00011000','01111110','01000010','01011010','01111110','01011010','01000010','01111110'] },
+  { id: 'pixel', r: 1, name: '画素（ピクセル）', fact: '画面は小さな点の集まり。このカードの絵も 8×8 = 64個の点でできています。', px: ['10101010','01010101','10101010','01010101','10101010','01010101','10101010','01010101'] },
+  { id: 'router', r: 1, name: 'ルーター', fact: 'ネットワーク部がちがう相手に、データを中継して届ける機械。家の Wi-Fi にもあります。', px: ['01000010','01000010','01000010','11111111','10000001','10101011','11111111','00000000'] },
+  { id: 'gate', r: 1, name: 'AND回路', fact: '両方 1 のときだけ 1 を出す回路。これを組み合わせると足し算もできます。', px: ['11111000','10000100','10000010','10000011','10000011','10000010','10000100','11111000'] },
+  { id: 'transistor', r: 2, name: 'トランジスタ', fact: '電気で ON/OFF する小さなスイッチ。今の CPU には何十億個も入っています。', px: ['00111100','01111110','01111110','01111110','01011010','01011010','01011010','01011010'] },
+  { id: 'memory', r: 2, name: 'メモリ', fact: '作業中のデータを置く「机」。電源を切ると中身は消えます。', px: ['00000000','11111111','11011011','11011011','11111111','01010101','00000000','00000000'] },
+  { id: 'hdd', r: 2, name: 'ハードディスク', fact: '回る円盤に磁気で 0 と 1 を記録します。電源を切っても消えません。', px: ['11111111','10000001','10111101','10100101','10111101','10000011','10000001','11111111'] },
+  { id: 'wifi', r: 2, name: 'Wi-Fi', fact: '電波に 0 と 1 をのせて、ケーブルなしでデータを送ります。', px: ['00000000','01111110','10000001','00111100','01000010','00011000','00011000','00000000'] },
+  { id: 'server', r: 2, name: 'サーバー', fact: 'Webページや動画を、たくさんの人に送り続けるコンピュータ。24時間休まず動いています。', px: ['11111111','10000101','11111111','10000101','11111111','10000101','11111111','00000000'] },
+  { id: 'punch', r: 2, name: 'パンチカード', fact: '穴があいている = 1、あいていない = 0。昔はこのカードでプログラムを入力しました。', px: ['11111110','10010011','11011011','10110101','11011011','10101101','11111111','00000000'] },
+  { id: 'color', r: 2, name: 'カラーコード', fact: '#FF0000 は赤。赤・緑・青を 0〜255 で混ぜて、約1677万色を表します。', px: ['00100100','00100100','11111111','00100100','00100100','11111111','00100100','00100100'] },
+  { id: 'cpu', r: 3, name: 'CPU', fact: 'コンピュータの頭脳。1秒間に何十億回も計算します。', px: ['01011010','11111111','01000010','11011011','11011011','01000010','11111111','01011010'] },
+  { id: 'tube', r: 3, name: '真空管', fact: 'トランジスタが生まれる前のスイッチ。大きくて熱く、よく切れました。', px: ['00011000','00111100','01000010','01011010','01011010','01000010','00111100','00100100'] },
+  { id: 'satellite', r: 3, name: '人工衛星', fact: '宇宙から電波でデータを送ります。スマホの地図の現在地もこれでわかります。', px: ['00000000','11000011','11011011','00111100','00111100','11011011','11000011','00000000'] },
+  { id: 'abacus', r: 3, name: 'そろばん', fact: '何千年も前からある計算の道具。珠の位置で数を表すのはコンピュータと同じ考え方です。', px: ['11111111','10100101','11111111','10100101','10111101','10100101','11111111','00000000'] },
+  { id: 'eniac', r: 4, name: 'ENIAC', fact: '1946年に完成した初期の電子計算機。約1万7千本の真空管を使い、部屋1つ分の大きさでした。', px: ['11111111','10101011','11111111','11010101','11111111','10101011','11111111','11111111'] },
+  { id: 'quantum', r: 4, name: '量子コンピュータ', fact: '0 と 1 を同時に重ね合わせた「量子ビット」で計算する、新しいしくみのコンピュータ。', px: ['00011000','01100110','10011001','10111101','10111101','10011001','01100110','00011000'] },
+  { id: 'goldbot', r: 4, name: '金のチップくん', fact: 'ビットステップの案内役の、とてもめずらしい金色の姿。毎日の学習を見守っています。', px: ['00011000','01111110','10000001','10100101','10000001','10111101','10000001','01111110'] }
+];
+const GACHA_COST = 30;
 
 /* =========================================================
    state
    ========================================================= */
 const KEY = 'bitstep.v1';
-const DEFAULT = { done: {}, xp: 0, streak: 0, lastDay: null, day: null, dayXp: 0, goal: 30, sound: true, review: [], badges: {}, reviewWins: 0, taBest: 0 };
+const DEFAULT = { done: {}, xp: 0, streak: 0, lastDay: null, day: null, dayXp: 0, goal: 30, sound: true, review: [], badges: {}, reviewWins: 0, taBest: 0, coins: 0, cards: {}, freeDay: null, firstClearDay: null };
 let S = DEFAULT;
 try { S = Object.assign({}, DEFAULT, JSON.parse(localStorage.getItem(KEY)) || {}); } catch (e) { S = { ...DEFAULT }; }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
@@ -622,6 +706,7 @@ function renderHome() {
     <div class="stats">
       <button class="stat ${st ? '' : 'off'}" data-act="profile" style="color:${st ? 'var(--accent)' : ''}" aria-label="連続日数 ${st}日">${I.flame}<span>${st}</span></button>
       <button class="stat" data-act="profile" style="color:var(--led)" aria-label="合計XP ${S.xp}">${I.bolt}<span style="color:var(--ink)">${S.xp}</span></button>
+      <button class="stat coin" data-act="gacha" aria-label="コイン ${S.coins}">${I.coin}<span style="color:var(--ink)">${S.coins}</span></button>
       <button class="iconbtn" data-act="sound" aria-label="効果音 ${S.sound ? 'オン' : 'オフ'}">${S.sound ? I.sound : I.mute}</button>
     </div>
   </div></header>
@@ -636,6 +721,7 @@ function renderHome() {
       <button class="tool" data-act="review" style="color:var(--u4)">${S.review.length ? `<span class="badge">${S.review.length}</span>` : ''}${I.review}<span style="color:var(--ink)">苦手復習</span></button>
       <button class="tool" data-act="ta" style="color:var(--accent)">${I.timer}<span style="color:var(--ink)">タイムアタック</span></button>
       <button class="tool" data-act="pg" style="color:var(--u5)">${I.term}<span style="color:var(--ink)">コードを試す</span></button>
+      <button class="tool" data-act="gacha" style="color:var(--led)">${freeAvailable() ? '<span class="badge free">無料</span>' : ''}${I.capsule}<span style="color:var(--ink)">ガチャ ${Object.keys(S.cards).length}/${CARDS.length}</span></button>
     </div>
     ${units}
     <p class="foot-note">進み具合はこのブラウザに保存されます。</p>
@@ -649,6 +735,7 @@ function renderHome() {
     if (a === 'review') startReview();
     if (a === 'ta') renderTA();
     if (a === 'pg') renderPG();
+    if (a === 'gacha') renderGacha();
   });
 }
 
@@ -679,10 +766,12 @@ function openProfile() {
   const s = sheet(`<h3>きろく</h3>
     <div class="kv" style="margin-top:14px"><div><b>${st}</b><span>連続日数</span></div><div><b>${S.xp}</b><span>合計 XP</span></div><div><b>${S.taBest}</b><span>タイムアタック最高</span></div></div>
     <div class="badges">${BADGES.map(b => `<div class="bdg ${S.badges[b.id] ? 'got' : ''}"><div class="chip">${b.mark}</div><b>${b.title}</b>${b.desc}</div>`).join('')}</div>
+    <button class="btn ghost" data-snd style="margin-bottom:16px">効果音：${S.sound ? 'オン' : 'オフ'}</button>
     <p class="meta">1日の目標</p>
     <div class="row" style="margin-bottom:16px">${[20, 30, 50].map(g => `<button class="btn ${S.goal === g ? '' : 'ghost'}" data-goal="${g}">${g} XP</button>`).join('')}</div>
     <button class="btn ghost" data-x>とじる</button>`);
   s.querySelector('[data-x]').onclick = closeSheet;
+  s.querySelector('[data-snd]').onclick = () => { S.sound = !S.sound; save(); renderHome(); openProfile(); };
   s.querySelectorAll('[data-goal]').forEach(b => b.onclick = () => { S.goal = +b.dataset.goal; save(); renderHome(); openProfile(); });
 }
 
@@ -708,7 +797,7 @@ function startReview() {
 
 function runSession(cfg) {
   closeSheet();
-  L = { ...cfg, queue: cfg.items.slice(), total: cfg.items.length, done: 0, hearts: cfg.mode === 'review' ? Infinity : 5, mistakes: 0, graded: 0, correct: 0, phase: 'answer', cur: null };
+  L = { ...cfg, queue: cfg.items.slice(), total: cfg.items.length, done: 0, hearts: cfg.mode === 'review' ? Infinity : 5, mistakes: 0, graded: 0, correct: 0, coins: 0, phase: 'answer', cur: null };
   nextItem();
 }
 
@@ -836,7 +925,7 @@ function check(q) {
   L.graded++;
   if (q.t === 'input') $('#ans').disabled = true;
   if (r.ok) {
-    L.correct++; beep('ok');
+    L.correct++; L.coins += 2; beep('ok');
     if (L.mode === 'review') { removeReview(q); S.reviewWins++; save(); if (S.reviewWins >= 5) award('review'); }
   } else {
     L.mistakes++; beep('bad');
@@ -886,18 +975,32 @@ function finishSession() {
     if (UNITS.find(u => u.id === 'net').lessons.every(l => S.done[l.id])) award('net');
     if (LESSONS.every(l => S.done[l.id])) award('all');
   } else xp = L.correct * 2;
+  // coins: 2 per correct answer, plus a clear bonus and the first clear of the day
+  const notes = [];
+  let coins = L.coins;
+  if (L.mode === 'lesson') coins += 10 + (L.mistakes === 0 ? 5 : 0);
+  if (S.firstClearDay !== todayStr()) { S.firstClearDay = todayStr(); coins += 20; notes.push('今日はじめてのクリア +20コイン'); }
+  const hadGoal = todayXp() >= S.goal;
+  S.coins += coins;
   addXp(xp);
+  if (!hadGoal && todayXp() >= S.goal) notes.push('今日の目標達成！ 無料ガチャが1回引けます');
   beep('win');
   const title = L.mode === 'review' ? '復習おわり！' : L.mistakes === 0 ? 'ノーミスクリア！' : 'レッスンクリア！';
+  const canPull = freeAvailable() || S.coins >= GACHA_COST;
   app.innerHTML = `<div class="wrap center">${mascot(130, 'happy', true)}<h1>${title}</h1>
     <p>${L.mode === 'review' ? `正解した問題は苦手リストから消えました。のこり ${S.review.length} 問。` : esc(L.lesson.title) + ' をクリアしました。'}</p>
     <div class="tiles">
-      <div class="tile" style="--tc:var(--led)"><span>獲得 XP</span><b>+${xp}</b></div>
+      <div class="tile" style="--tc:var(--led)"><span>XP</span><b>+${xp}</b></div>
+      <div class="tile" style="--tc:var(--u6)"><span>コイン</span><b>+${coins}</b></div>
       <div class="tile" style="--tc:var(--ok)"><span>正答率</span><b>${acc}%</b></div>
-      <div class="tile" style="--tc:var(--accent)"><span>連続日数</span><b>${liveStreak()}日</b></div>
+      <div class="tile" style="--tc:var(--accent)"><span>連続</span><b>${liveStreak()}日</b></div>
     </div>
-    <div style="width:100%;max-width:420px;margin-top:16px"><button class="btn" id="home">つづける</button></div></div>`;
+    ${notes.map(n => `<p style="color:var(--ink);font-weight:800">${n}</p>`).join('')}
+    <div style="width:100%;max-width:420px;margin-top:8px;display:grid;gap:12px">
+      ${canPull ? `<button class="btn ghost" id="gacha">${freeAvailable() ? '無料ガチャを引く' : `ガチャを引く（${GACHA_COST}コイン）`}</button>` : `<p>ガチャまで あと ${GACHA_COST - S.coins} コイン</p>`}
+      <button class="btn" id="home">つづける</button></div></div>`;
   $('#home').onclick = renderHome; $('#home').focus();
+  if ($('#gacha')) $('#gacha').onclick = renderGacha;
   onKey = e => { if (e.key === 'Enter') { e.preventDefault(); renderHome(); } };
 }
 
@@ -944,9 +1047,9 @@ function endTA() {
   const { score, miss } = TA; stopTA(); onKey = null;
   const best = score > S.taBest; if (best) S.taBest = score;
   if (score >= 15) award('ta15');
-  const xp = Math.max(1, Math.floor(score / 2)); addXp(xp); beep('win');
+  const xp = Math.max(1, Math.floor(score / 2)); S.coins += score; addXp(xp); beep('win');
   app.innerHTML = `<div class="wrap center">${mascot(120, 'happy', true)}<h1>${best ? '新記録！' : 'タイムアップ'}</h1>
-    <div class="tiles"><div class="tile" style="--tc:var(--ok)"><span>正解</span><b>${score}</b></div><div class="tile" style="--tc:var(--bad)"><span>ミス</span><b>${miss}</b></div><div class="tile" style="--tc:var(--led)"><span>獲得 XP</span><b>+${xp}</b></div></div>
+    <div class="tiles"><div class="tile" style="--tc:var(--ok)"><span>正解</span><b>${score}</b></div><div class="tile" style="--tc:var(--bad)"><span>ミス</span><b>${miss}</b></div><div class="tile" style="--tc:var(--u6)"><span>コイン</span><b>+${score}</b></div></div>
     <div style="width:100%;max-width:420px;display:grid;gap:12px;margin-top:16px"><button class="btn" id="again">もう一回</button><button class="btn ghost" id="home">ホームへ</button></div></div>`;
   $('#again').onclick = playTA; $('#home').onclick = renderHome;
 }
@@ -1017,6 +1120,106 @@ function resumeAfterTry(q) {
   if (L.hearts <= 0) return failSession();
   nextItem();
 }
+/* =========================================================
+   gacha + collection
+   ========================================================= */
+function freeAvailable() { return todayXp() >= S.goal && S.freeDay !== todayStr(); }
+function sprite(c, owned) {
+  const fill = owned ? RARITY[c.r].color : 'var(--line)';
+  let rects = '';
+  c.px.forEach((row, y) => [...row].forEach((b, x) => { if (b === '1') rects += `<rect x="${x}" y="${y}" width="1" height="1"/>`; }));
+  return `<svg viewBox="-0.5 -0.5 9 9" shape-rendering="crispEdges" aria-hidden="true"><g fill="${fill}">${rects}</g></svg>`;
+}
+function bitsData(c) {
+  return `<div class="bitsdata">${c.px.map(r => `<span>${r}</span><span>0x${parseInt(r, 2).toString(16).toUpperCase().padStart(2, '0')}</span>`).join('')}</div>`;
+}
+function rollCard() {
+  let roll = Math.random() * 100, r = 1;
+  for (const k of [4, 3, 2, 1]) { roll -= RARITY[k].rate; if (roll < 0) { r = k; break; } }
+  const pool = CARDS.filter(c => c.r === r);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function renderGacha() {
+  stopTA(); closeSheet(); onKey = null;
+  const owned = Object.keys(S.cards).length;
+  const free = freeAvailable();
+  const caps = Array.from({ length: 11 }, (_, i) => {
+    const c = ['var(--u2)', 'var(--u5)', 'var(--u3)', 'var(--u4)', 'var(--led)', 'var(--u1)'][i % 6];
+    return `<i style="--cc:${c};left:${(i * 37 + (i % 2) * 12) % 92}%;top:${i % 3 === 0 ? 62 : i % 3 === 1 ? 32 : 4}px;transform:rotate(${i * 47}deg)"></i>`;
+  }).join('');
+  const goalNote = free ? '今日の目標を達成しました。無料で1回引けます！'
+    : S.freeDay === todayStr() ? '今日の無料ガチャは引きました。また明日！'
+    : `今日の目標（${S.goal} XP）を達成すると、無料で1回引けます。あと ${S.goal - todayXp()} XP`;
+  app.innerHTML = `<div class="wrap">
+    <div class="gtop"><button class="iconbtn" id="back" aria-label="ホームへ">${I.x}</button><h1>ガチャ</h1><span class="wallet coin" aria-label="コイン">${I.coin}<span style="color:var(--ink)">${S.coins}</span></span></div>
+    <div class="machine">
+      <div class="window" aria-hidden="true">${caps}</div>
+      ${free ? `<button class="btn okb" id="pullFree">無料で引く</button>` : ''}
+      <button class="btn" id="pull" ${S.coins < GACHA_COST ? 'disabled' : ''}>1回引く（${GACHA_COST}コイン）</button>
+      <p class="note">${goalNote}</p>
+      <p class="note">コインは 1問正解 +2、レッスンクリア +10、ノーミス +5、その日はじめてのクリア +20 でもらえます。同じカードが出たら +5コイン返ってきます。</p>
+      <div class="rates">${[1, 2, 3, 4].map(k => `<span><b style="color:${RARITY[k].color}">${RARITY[k].stars}</b> ${RARITY[k].name} ${RARITY[k].rate}%</span>`).join('')}</div>
+    </div>
+    <div class="colhead"><h2>コレクション</h2><span>${owned} / ${CARDS.length}</span></div>
+    <div class="meter"><i style="width:${owned / CARDS.length * 100}%"></i></div>
+    <div class="cards">${CARDS.map(c => {
+      const n = S.cards[c.id] || 0;
+      return `<button class="card r${c.r} ${n ? 'own' : 'lock'}" data-card="${c.id}" style="--rc:${RARITY[c.r].color}" aria-label="${n ? esc(c.name) : 'まだ持っていないカード'}">
+        ${n > 1 ? `<span class="cnt">×${n}</span>` : ''}${sprite(c, n > 0)}<span class="st">${RARITY[c.r].stars}</span><span>${n ? esc(c.name) : '？？？'}</span></button>`;
+    }).join('')}</div>
+  </div>`;
+  $('#back').onclick = renderHome;
+  $('#pull').onclick = () => pull(false);
+  if ($('#pullFree')) $('#pullFree').onclick = () => pull(true);
+  app.querySelectorAll('.card').forEach(b => b.onclick = () => openCard(b.dataset.card));
+}
+
+function pull(free) {
+  if (free) { if (!freeAvailable()) return; S.freeDay = todayStr(); }
+  else { if (S.coins < GACHA_COST) return; S.coins -= GACHA_COST; }
+  const c = rollCard();
+  const isNew = !S.cards[c.id];
+  S.cards[c.id] = (S.cards[c.id] || 0) + 1;
+  if (!isNew) S.coins += 5;
+  save();
+  const n = Object.keys(S.cards).length;
+  if (n >= 10) award('col10');
+  if (n >= CARDS.length) award('colall');
+  const R = RARITY[c.r];
+  const ov = document.createElement('div');
+  ov.className = 'reveal'; ov.style.setProperty('--rc', R.color);
+  ov.innerHTML = `<div class="capsule" aria-hidden="true"></div><p style="color:#fff;font-weight:800;margin:0">なにが出るかな…</p>`;
+  document.body.appendChild(ov);
+  beep('ok');
+  const delay = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 950;
+  setTimeout(() => {
+    beep(c.r >= 3 ? 'win' : 'ok');
+    const again = S.coins >= GACHA_COST;
+    ov.innerHTML = `<div class="bigcard r${c.r}" role="dialog" aria-label="${esc(c.name)}">
+        <span class="tag ${isNew ? 'new' : 'dup'}">${isNew ? 'NEW!' : 'もう持っている（+5コイン）'}</span><br>
+        ${sprite(c, true)}
+        <div class="st">${R.stars} ${R.name}</div><h3>${esc(c.name)}</h3><p>${esc(c.fact)}</p></div>
+      <div class="row">${again ? `<button class="btn ghost" id="again">もう1回（${GACHA_COST}）</button>` : ''}<button class="btn" id="close">OK</button></div>`;
+    const close = () => { ov.remove(); onKey = null; renderGacha(); };
+    $('#close').onclick = close; $('#close').focus();
+    if ($('#again')) $('#again').onclick = () => { ov.remove(); renderGacha(); pull(false); };
+    onKey = e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); close(); } };
+  }, delay);
+}
+
+function openCard(id) {
+  const c = CARDS.find(x => x.id === id), n = S.cards[id] || 0, R = RARITY[c.r];
+  const s = sheet(`<div style="text-align:center;--rc:${R.color}">
+      <div style="width:120px;margin:0 auto">${sprite(c, n > 0)}</div>
+      <div class="eyebrow" style="color:${R.color};font-weight:800">${R.stars} ${R.name}</div>
+      <h3>${n ? esc(c.name) : '？？？'}</h3>
+      <p class="meta" style="text-align:left;color:var(--ink)">${n ? esc(c.fact) + `<br><span style="color:var(--muted)">持っている数：${n}</span>` : 'まだ出ていないカードです。ガチャで出ると説明が読めます。'}</p>
+      ${n ? `<p class="meta" style="margin-bottom:0">このカードの絵は 8バイトのデータ。1 の点だけ色をぬっています。</p>${bitsData(c)}` : ''}
+    </div><div style="margin-top:16px"><button class="btn ghost" data-x>とじる</button></div>`);
+  s.querySelector('[data-x]').onclick = closeSheet;
+}
+
 // remember result for resume
 const _check = check;
 check = function (q) { _check(q); L.lastResult = $('#foot').classList.contains('ok'); };
